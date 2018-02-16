@@ -1,4 +1,5 @@
-# CECS328-Project
+# CECS343-Project
+Sorry I named it incorrectly...
 Grade Progress Tracker
 
 School Project
