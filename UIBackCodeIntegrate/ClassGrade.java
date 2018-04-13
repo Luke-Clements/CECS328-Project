@@ -1,4 +1,4 @@
-package pkg343project;
+package BackCode;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -20,16 +20,36 @@ public class ClassGrade
     private StringProperty grade;
     private StringProperty semester;
     private StringProperty schoolName;
-    private StringProperty GPA;
+    private Assignment assignment;
     
-    ClassGrade()
+    public ClassGrade()
     {
         className = new SimpleStringProperty("CECS 343");
         professorName = new SimpleStringProperty("Sharifian");
         grade = new SimpleStringProperty("A");
         semester = new SimpleStringProperty("SPRING18");
         schoolName = new SimpleStringProperty("CSULB");
-        GPA = new SimpleStringProperty("5.00");
+        assignment = new Assignment();
+    }
+    
+    public Assignment getAssignment()
+    {
+        return assignment;
+    }
+    
+    public String getSchoolName()
+    {
+        return schoolName.get();
+    }
+    
+    public String getSemester()
+    {
+        return semester.get();
+    }
+    
+    public String getGrade()
+    {
+        return grade.get();
     }
     
     public String getClassName()
