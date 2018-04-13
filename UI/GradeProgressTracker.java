@@ -6,12 +6,9 @@
 package pkg343project;
 
 import java.util.ArrayList;
-import java.util.Vector;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -32,20 +29,11 @@ import javafx.stage.Stage;
  *
  * @author lukecjm
  */
-public class Main extends Application {
+public class GradeProgressTracker extends Application {
     
     @Override
-    public void start(Stage primaryStage) {
-        Button btn = new Button();
-        btn.setText("Say 'Hello World'");
-        btn.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override
-            public void handle(ActionEvent event) {
-                System.out.println("Hello World!");
-            }
-        });
-        
+    public void start(Stage primaryStage) 
+    {    
         StackPane root = new StackPane();
         TabPane mainPane = new TabPane();
         GridPane searchPane = new GridPane();
@@ -57,10 +45,44 @@ public class Main extends Application {
         Tab calculateGradeTab = new Tab("Calculator");
         Tab sLTab = new Tab("Save/Load");
         
-        
-        System.out.println((new ClassGrade()).getClassName().toString());
         //SetupSearchPane
         // Name(of class), semester(date), grade, GPA by semester, Professor, SchoolName
+        SetupSearchPane(searchPane);
+        
+        //SetupClassInputPane
+        // name(of class), semester, grade, professor, schoolName
+        SetupClassInputPane(classPane);
+        //end classInputPane setup
+        
+        //SetupCalculatePane
+        // calculates GPA based on (very similar to search Pane)
+        
+        classInputTab.setContent(classPane);
+        searchTab.setContent(searchPane);
+        calculateGradeTab.setContent(calculateTab);
+        sLTab.setContent(saveLoadTab);
+        
+        mainPane.getTabs().addAll(classInputTab, searchTab, calculateGradeTab);
+        mainPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
+        
+        root.getChildren().add(mainPane);
+        
+        Scene scene = new Scene(root, 500, 425);
+        
+        primaryStage.setTitle("Grade Progress Tracker");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        launch(args);
+    }
+    
+    public void SetupSearchPane(GridPane searchPane)
+    {
         ArrayList<ClassGrade> cg = new ArrayList();
         cg.add(new ClassGrade());
         TableView<ClassGrade> classGradeTable = new TableView();
@@ -75,9 +97,9 @@ public class Main extends Application {
         classGradeTable.getColumns().setAll(firstNameCol, lastNameCol);
         
         searchPane.getChildren().add(classGradeTable);
-        
-        //SetupClassInputPane
-        // name(of class), semester, grade, professor, schoolName
+    }
+    public void SetupClassInputPane(GridPane classPane)
+    {
         HBox getClassName = new HBox();
         TextField nameField = new TextField();
         Label promptName = new Label("Class Name:");
@@ -120,33 +142,6 @@ public class Main extends Application {
         GridPane.setConstraints(saveClass, 1, 2);
         
         classPane.getChildren().addAll(getClassName, getSemesterName, getGrade, getProfessorName, getSchoolName, saveClass);
-        //end classInputPane setup
-        
-        //SetupCalculatePane
-        // calculates GPA based on (very similar to search Pane)
-        
-        classInputTab.setContent(classPane);
-        searchTab.setContent(searchPane);
-        calculateGradeTab.setContent(calculateTab);
-        sLTab.setContent(saveLoadTab);
-        
-        mainPane.getTabs().addAll(classInputTab, searchTab, calculateGradeTab);
-        mainPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
-        
-        root.getChildren().add(mainPane);
-        
-        Scene scene = new Scene(root, 500, 425);
-        
-        primaryStage.setTitle("Grade Progress Tracker");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        launch(args);
     }
     
 }
