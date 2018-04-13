@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package pkg343project;
+package UI;
 
+import BackCode.*;
+import java.io.File;
 import java.util.ArrayList;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -30,6 +32,8 @@ import javafx.stage.Stage;
  * @author lukecjm
  */
 public class GradeProgressTracker extends Application {
+    private final String[] classInfoCategories = {"Class Name", "Semester", "Grade", "Professor", "School", "Assignment Name"};
+    // need to have filepath here and check it before anything else
     
     @Override
     public void start(Stage primaryStage) 
@@ -37,13 +41,13 @@ public class GradeProgressTracker extends Application {
         StackPane root = new StackPane();
         TabPane mainPane = new TabPane();
         GridPane searchPane = new GridPane();
-        GridPane classPane = new GridPane();
-        GridPane calculateTab = new GridPane();
-        GridPane saveLoadTab = new GridPane();
-        Tab classInputTab = new Tab("Class Input");
+        GridPane classModificationsPane = new GridPane();
+        GridPane calculatePane = new GridPane();
+        GridPane settingsPane = new GridPane();
+        Tab classModificationsTab = new Tab("Update Classes");
         Tab searchTab = new Tab("Search");
-        Tab calculateGradeTab = new Tab("Calculator");
-        Tab sLTab = new Tab("Save/Load");
+        Tab calculateGradeTab = new Tab("Calculations");
+        Tab settingsTab = new Tab("Settings");
         
         //SetupSearchPane
         // Name(of class), semester(date), grade, GPA by semester, Professor, SchoolName
@@ -51,18 +55,18 @@ public class GradeProgressTracker extends Application {
         
         //SetupClassInputPane
         // name(of class), semester, grade, professor, schoolName
-        SetupClassInputPane(classPane);
+        SetupClassModificationsPane(classModificationsPane);
         //end classInputPane setup
         
         //SetupCalculatePane
         // calculates GPA based on (very similar to search Pane)
         
-        classInputTab.setContent(classPane);
+        classModificationsTab.setContent(classModificationsPane);
         searchTab.setContent(searchPane);
-        calculateGradeTab.setContent(calculateTab);
-        sLTab.setContent(saveLoadTab);
+        calculateGradeTab.setContent(calculatePane);
+        settingsTab.setContent(settingsPane);
         
-        mainPane.getTabs().addAll(classInputTab, searchTab, calculateGradeTab);
+        mainPane.getTabs().addAll(classModificationsTab, searchTab, calculateGradeTab, settingsTab);
         mainPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
         
         root.getChildren().add(mainPane);
@@ -81,6 +85,27 @@ public class GradeProgressTracker extends Application {
         launch(args);
     }
     
+    //incomplete
+    public void InitialStartup()
+    {
+        //setup action on save button click
+        FileChooser fileChooser = new FileChooser();
+        //only updates the filepath for the save window if it has been initialized
+        if((new Settings()).getFilePathToDataBaseFile() != null)
+        {
+            fileChooser.setInitialDirectory(new File((new Settings()).getFilePathToDataBaseFile().get()));
+        }
+        Stage stage = new Stage();
+        fileChooser.setTitle("Select Save Location");
+        fileChooser.showSaveDialog(stage);
+    }
+    
+    //incomplete
+    public void SetFileSavePath()
+    {
+        
+    }
+    
     public void SetupSearchPane(GridPane searchPane)
     {
         ArrayList<ClassGrade> cg = new ArrayList();
@@ -89,44 +114,54 @@ public class GradeProgressTracker extends Application {
         ObservableList<ClassGrade> classGradeItem = FXCollections.observableList(cg);
         classGradeTable.setItems(classGradeItem);
         
-        TableColumn<ClassGrade,String> firstNameCol = new TableColumn("Class Name");
-        firstNameCol.setCellValueFactory(new PropertyValueFactory("className"));
-        TableColumn<ClassGrade,String> lastNameCol = new TableColumn("Professor Name");
-        lastNameCol.setCellValueFactory(new PropertyValueFactory("professorName"));
+        TableColumn<ClassGrade,String> classNameCol = new TableColumn(classInfoCategories[0]);
+        classNameCol.setCellValueFactory(new PropertyValueFactory("className"));
+        TableColumn<ClassGrade,String> semesterCol = new TableColumn(classInfoCategories[1]);
+        semesterCol.setCellValueFactory(new PropertyValueFactory("semester"));
+        TableColumn<ClassGrade,String> gradeCol = new TableColumn(classInfoCategories[2]);
+        gradeCol.setCellValueFactory(new PropertyValueFactory("grade"));
+        TableColumn<ClassGrade,String> professorCol = new TableColumn(classInfoCategories[3]);
+        professorCol.setCellValueFactory(new PropertyValueFactory("professorName"));
+        TableColumn<ClassGrade,String> schoolCol = new TableColumn(classInfoCategories[4]);
+        schoolCol.setCellValueFactory(new PropertyValueFactory("schoolName"));
+        //need completed assignment class before testing this, 
+        //  don't forgot to modify the line below to add this to the table
+//        TableColumn<ClassGrade,String> assignmentCol = new TableColumn(classInfoCategories[3]);
+//        assignmentCol.setCellValueFactory(new PropertyValueFactory("assignmentName"));
 
-        classGradeTable.getColumns().setAll(firstNameCol, lastNameCol);
+        classGradeTable.getColumns().setAll(classNameCol, semesterCol, gradeCol, professorCol, schoolCol);
         
         searchPane.getChildren().add(classGradeTable);
     }
-    public void SetupClassInputPane(GridPane classPane)
+    public void SetupClassModificationsPane(GridPane classModificationsPane)
     {
         HBox getClassName = new HBox();
         TextField nameField = new TextField();
-        Label promptName = new Label("Class Name:");
+        Label promptName = new Label(classInfoCategories[0] + ":");
         getClassName.getChildren().addAll(promptName, nameField);
         GridPane.setConstraints(getClassName, 0, 0);
         
         HBox getSemesterName = new HBox();
         TextField semesterField = new TextField();
-        Label promptSemester = new Label("Semester:");
+        Label promptSemester = new Label(classInfoCategories[1] + ":");
         getSemesterName.getChildren().addAll(promptSemester, semesterField);
         GridPane.setConstraints(getSemesterName, 0, 1);
         
         HBox getGrade = new HBox();
         TextField gradeField = new TextField();
-        Label promptGrade = new Label("Grade:");
+        Label promptGrade = new Label(classInfoCategories[2] + ":");
         getGrade.getChildren().addAll(promptGrade, gradeField);
         GridPane.setConstraints(getGrade, 0, 2);
         
         HBox getProfessorName = new HBox();
         TextField professorNameField = new TextField();
-        Label promptProfessorName = new Label("Professor:");
+        Label promptProfessorName = new Label(classInfoCategories[3] + ":");
         getProfessorName.getChildren().addAll(promptProfessorName, professorNameField);
         GridPane.setConstraints(getProfessorName, 1, 0);
         
         HBox getSchoolName = new HBox();
         TextField schoolNameField = new TextField();
-        Label promptSchoolName = new Label("School:");
+        Label promptSchoolName = new Label(classInfoCategories[4] + ":");
         getSchoolName.getChildren().addAll(promptSchoolName, schoolNameField);
         GridPane.setConstraints(getSchoolName, 1, 1);
         
@@ -134,6 +169,11 @@ public class GradeProgressTracker extends Application {
         
         //setup action on save button click
         FileChooser fileChooser = new FileChooser();
+        //only updates the filepath for the save window if it has been initialized
+        if((new Settings()).getFilePathToDataBaseFile() != null)
+        {
+            fileChooser.setInitialDirectory(new File((new Settings()).getFilePathToDataBaseFile().get()));
+        }
         saveClass.setOnMouseClicked(e -> 
         {
             Stage stage = new Stage();
@@ -141,7 +181,6 @@ public class GradeProgressTracker extends Application {
         });
         GridPane.setConstraints(saveClass, 1, 2);
         
-        classPane.getChildren().addAll(getClassName, getSemesterName, getGrade, getProfessorName, getSchoolName, saveClass);
+        classModificationsPane.getChildren().addAll(getClassName, getSemesterName, getGrade, getProfessorName, getSchoolName, saveClass);
     }
-    
 }
