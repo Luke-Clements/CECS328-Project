@@ -7,7 +7,12 @@ package UI;
 
 import BackCode.*;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,8 +31,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 
 /**
  *
@@ -39,8 +49,7 @@ public class GradeProgressTracker extends Application {
     //this filepath contains info for startup of the program. This must be in the 
     //  same folder to the .exe file for this program as it is static
     private final String filePathToSettingsInfo = "/Desktop/Settings.json";
-    private String filePathToDatabaseFiles;
-    private String userOfProgram;
+    private Settings settings;
     private ObservableList<ClassGrade> classGradeItem;
     
     @Override
@@ -57,6 +66,7 @@ public class GradeProgressTracker extends Application {
         Tab calculateGradeTab = new Tab("Calculations");
         Tab settingsTab = new Tab("Settings");
         
+        InitialStartup(primaryStage);
         //SetupSearchPane
         // Name(of class), semester(date), grade, GPA by semester, Professor, SchoolName
         SetupSearchPane(searchPane);
@@ -94,27 +104,38 @@ public class GradeProgressTracker extends Application {
     }
     
     //incomplete
-    public void InitialStartup(Settings settings, String filepath)
+    public void InitialStartup(Stage primaryStage)
     {
-        File settingsFile = new File(filepath);
+        File settingsFile = new File(filePathToSettingsInfo);
+        File saveLocation;
         if(settingsFile.exists())
         {
-            //read from the settings file so that the fileChooser has an initial path
+            JSONParser parser = new JSONParser();
+            
+            try
+            {
+                JSONObject jsonObj = (JSONObject) parser.parse(new FileReader(filePathToSettingsInfo));
+                
+                settings.setFilePathToDataBaseFile((String)jsonObj.get("DatabaseFilepath"));
+                settings.setIDNumber((int)jsonObj.get("Id"));
+                settings.setUserName((String)jsonObj.get("Username"));
+            } catch (FileNotFoundException e) {
+                System.out.println("The selected file at " + filePathToSettingsInfo + " does not exist.");
+            } catch (IOException ex) {
+                System.out.println("There was an error reading the file.");
+            } catch (ParseException ex) {
+                System.out.println("The file data has been corrupted.");
+            }
         }
         else
         {
-            //create the file and prompt user for initial settings
+            //setup action on save button click
+            DirectoryChooser dirChooser = new DirectoryChooser();
+            saveLocation = dirChooser.showDialog(primaryStage);
+            
+            //get username and userID
+            //create remaining file that are necessary
         }
-        //setup action on save button click
-        FileChooser fileChooser = new FileChooser();
-        //only updates the filepath for the save window if it has been initialized
-        if(settings.getFilePathToDataBaseFile() != null)
-        {
-            fileChooser.setInitialDirectory(new File(settings.getFilePathToDataBaseFile().get()));
-        }
-        Stage stage = new Stage();
-        fileChooser.setTitle("Select Save Location");
-        fileChooser.showSaveDialog(stage);
     }
     
     //incomplete
@@ -123,45 +144,43 @@ public class GradeProgressTracker extends Application {
         
     }
     
-    public void ReadDatabaseValues()
-    {
-        
-    }
-    
-    public ObservableList<ClassGrade> setupSearchTableResults(String searchItem)
+    public ObservableList<ClassGrade> SetupSearchTableResults(String searchItem)
     {
         ArrayList<ClassGrade> tableResults = new ArrayList();
         
-        if(searchItem == null)
+        if(searchItem == null || searchItem.equals(""))
         {
             return classGradeItem;
         }
-        else
+        else if(classGradeItem != null)
         {
             for(int i = 0;i < classGradeItem.size();i++)
             {
-                if(classGradeItem.get(i).getClassName().equals(searchItem) ||
-                   classGradeItem.get(i).getGrade().equals(searchItem) ||
-                   classGradeItem.get(i).getProfessorName().equals(searchItem) ||
-                   classGradeItem.get(i).getSchoolName().equals(searchItem) ||
-                   classGradeItem.get(i).getSemester().equals(searchItem) ||
-                   classGradeItem.get(i).getAssignment().toString().equals(searchItem))
+                //may want to add String.toUpper() to make this more universal
+                if(classGradeItem.get(i).getClassName().contains(searchItem) ||
+                   classGradeItem.get(i).getGrade().contains(searchItem) ||
+                   classGradeItem.get(i).getProfessorName().contains(searchItem) ||
+                   classGradeItem.get(i).getSchoolName().contains(searchItem) ||
+                   classGradeItem.get(i).getSemester().contains(searchItem) ||
+                   classGradeItem.get(i).getAssignment().toString().contains(searchItem))
                 {
                     tableResults.add(classGradeItem.get(i));
                 }
             }
             return FXCollections.observableList(tableResults);
         }
+        return null;
     }
     public void SetupSearchPane(GridPane searchPane)
     {
-        ArrayList<ClassGrade> cg = new ArrayList();
+        ArrayList<ClassGrade> cgi = new ArrayList();
+        cgi.add(new ClassGrade());
+        classGradeItem = FXCollections.observableList(cgi);
         VBox searchPlusTable = new VBox();
-        HBox search = new HBox();
-        cg.add(new ClassGrade());
         TableView<ClassGrade> classGradeTable = new TableView();
-        classGradeItem = FXCollections.observableList(cg);
-        classGradeTable.setItems(classGradeItem);
+        TextField searchField = new TextField();
+        
+        classGradeTable.setItems(SetupSearchTableResults(searchField.getText()));
         
         TableColumn<ClassGrade,String> classNameCol = new TableColumn(classInfoCategories[0]);
         classNameCol.setCellValueFactory(new PropertyValueFactory("className"));
@@ -180,19 +199,12 @@ public class GradeProgressTracker extends Application {
 
         classGradeTable.getColumns().setAll(classNameCol, semesterCol, gradeCol, professorCol, schoolCol);
         
-        TextField searchField = new TextField();
-        Button searchBtn = new Button("Search");
-        
         searchField.setOnKeyTyped(e ->{
-            //default case
-            //other case
+            classGradeTable.setItems(SetupSearchTableResults(searchField.getText()));
         });
         
-        //setup search field and button
-        search.getChildren().addAll(searchField, searchBtn);
-        HBox.setHgrow(search, Priority.ALWAYS);
         //setup search field/button and table
-        searchPlusTable.getChildren().addAll(search, classGradeTable);
+        searchPlusTable.getChildren().addAll(searchField, classGradeTable);
         searchPlusTable.setFillWidth(true);
         searchPane.getChildren().add(searchPlusTable);
     }
