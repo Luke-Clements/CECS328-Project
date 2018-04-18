@@ -63,22 +63,22 @@ public class Assignment
         return assignmentTotalScore;
     }
     
-    public void setAssignmentName(StringProperty aName)
+    public void setName(StringProperty aName)
     {
         assignmentName = aName;
     }
     
-    public StringProperty getAssignmentName()
+    public StringProperty getName()
     {
         return assignmentName;
     }
     
-    public void setAssigmmentCategory(StringProperty aCategory)
+    public void setCategory(StringProperty aCategory)
     {
         assignmentCategory = aCategory;
     }
     
-    public StringProperty getAssingmentCategory()
+    public StringProperty getCategory()
     {
         return assignmentCategory;
     }
