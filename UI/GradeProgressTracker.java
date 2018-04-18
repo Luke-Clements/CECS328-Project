@@ -23,7 +23,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -33,7 +35,13 @@ import javafx.stage.Stage;
  */
 public class GradeProgressTracker extends Application {
     private final String[] classInfoCategories = {"Class Name", "Semester", "Grade", "Professor", "School", "Assignment Name"};
-    // need to have filepath here and check it before anything else
+
+    //this filepath contains info for startup of the program. This must be in the 
+    //  same folder to the .exe file for this program as it is static
+    private final String filePathToSettingsInfo = "/Desktop/Settings.json";
+    private String filePathToDatabaseFiles;
+    private String userOfProgram;
+    private ObservableList<ClassGrade> classGradeItem;
     
     @Override
     public void start(Stage primaryStage) 
@@ -86,14 +94,23 @@ public class GradeProgressTracker extends Application {
     }
     
     //incomplete
-    public void InitialStartup()
+    public void InitialStartup(Settings settings, String filepath)
     {
+        File settingsFile = new File(filepath);
+        if(settingsFile.exists())
+        {
+            //read from the settings file so that the fileChooser has an initial path
+        }
+        else
+        {
+            //create the file and prompt user for initial settings
+        }
         //setup action on save button click
         FileChooser fileChooser = new FileChooser();
         //only updates the filepath for the save window if it has been initialized
-        if((new Settings()).getFilePathToDataBaseFile() != null)
+        if(settings.getFilePathToDataBaseFile() != null)
         {
-            fileChooser.setInitialDirectory(new File((new Settings()).getFilePathToDataBaseFile().get()));
+            fileChooser.setInitialDirectory(new File(settings.getFilePathToDataBaseFile().get()));
         }
         Stage stage = new Stage();
         fileChooser.setTitle("Select Save Location");
@@ -106,12 +123,44 @@ public class GradeProgressTracker extends Application {
         
     }
     
+    public void ReadDatabaseValues()
+    {
+        
+    }
+    
+    public ObservableList<ClassGrade> setupSearchTableResults(String searchItem)
+    {
+        ArrayList<ClassGrade> tableResults = new ArrayList();
+        
+        if(searchItem == null)
+        {
+            return classGradeItem;
+        }
+        else
+        {
+            for(int i = 0;i < classGradeItem.size();i++)
+            {
+                if(classGradeItem.get(i).getClassName().equals(searchItem) ||
+                   classGradeItem.get(i).getGrade().equals(searchItem) ||
+                   classGradeItem.get(i).getProfessorName().equals(searchItem) ||
+                   classGradeItem.get(i).getSchoolName().equals(searchItem) ||
+                   classGradeItem.get(i).getSemester().equals(searchItem) ||
+                   classGradeItem.get(i).getAssignment().toString().equals(searchItem))
+                {
+                    tableResults.add(classGradeItem.get(i));
+                }
+            }
+            return FXCollections.observableList(tableResults);
+        }
+    }
     public void SetupSearchPane(GridPane searchPane)
     {
         ArrayList<ClassGrade> cg = new ArrayList();
+        VBox searchPlusTable = new VBox();
+        HBox search = new HBox();
         cg.add(new ClassGrade());
         TableView<ClassGrade> classGradeTable = new TableView();
-        ObservableList<ClassGrade> classGradeItem = FXCollections.observableList(cg);
+        classGradeItem = FXCollections.observableList(cg);
         classGradeTable.setItems(classGradeItem);
         
         TableColumn<ClassGrade,String> classNameCol = new TableColumn(classInfoCategories[0]);
@@ -131,7 +180,21 @@ public class GradeProgressTracker extends Application {
 
         classGradeTable.getColumns().setAll(classNameCol, semesterCol, gradeCol, professorCol, schoolCol);
         
-        searchPane.getChildren().add(classGradeTable);
+        TextField searchField = new TextField();
+        Button searchBtn = new Button("Search");
+        
+        searchField.setOnKeyTyped(e ->{
+            //default case
+            //other case
+        });
+        
+        //setup search field and button
+        search.getChildren().addAll(searchField, searchBtn);
+        HBox.setHgrow(search, Priority.ALWAYS);
+        //setup search field/button and table
+        searchPlusTable.getChildren().addAll(search, classGradeTable);
+        searchPlusTable.setFillWidth(true);
+        searchPane.getChildren().add(searchPlusTable);
     }
     public void SetupClassModificationsPane(GridPane classModificationsPane)
     {
