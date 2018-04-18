@@ -29,18 +29,18 @@ public class Settings
         return filePathToDataBaseFile;
     }
     
-    public void setUserName(StringProperty un)
+    public void setUserName(String un)
     {
-        this.userName = un;
+        this.userName.setValue(un);
     }
     
-    public void setIDNumber(IntegerProperty id)
+    public void setIDNumber(int id)
     {
-        this.idNumber = id;
+        this.idNumber.setValue(id);
     }
     
-    public void setFilePathToDataBaseFile(StringProperty filepath)
+    public void setFilePathToDataBaseFile(String filepath)
     {
-        this.filePathToDataBaseFile = filepath;
+        this.filePathToDataBaseFile.setValue(filepath);
     }
 }
