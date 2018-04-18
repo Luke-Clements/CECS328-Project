@@ -14,14 +14,31 @@ import javafx.beans.property.StringProperty;
  * @author lukecjm
  */
 public class Class {
-    private StringProperty cName;
-    private StringProperty cTeacherName;
-    private StringProperty cSemester;
+    private StringProperty className;
+    private StringProperty classTeacherName;
+    private StringProperty classSemester;
+    private StringProperty classSchool;
     private IntegerProperty cID;
     private GradingScale cGradingScale; //not sure if this should be a string or not
     private Assignment[] cAssignments;
+
+
+    Class(){
+        className = null;
+        classTeacherName = null;
+        classSemester = null;
+        classSchool = null;
+        cID = null;
+    }
     
-    
-    
+    Class(StringProperty cName, StringProperty cTeacherName, StringProperty cSemester, StringProperty cSchool){
+        className = cName;
+        classTeacherName = cTeacherName;
+        classSemester = cSemester;
+        classSchool = cSchool;
+    }
+        
+            
+            
     
 }
