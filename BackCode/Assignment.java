@@ -1,4 +1,4 @@
-package pkg343project;
+package BackCode;
 
 import javafx.beans.property.FloatProperty;
 import javafx.beans.property.StringProperty;
@@ -13,13 +13,14 @@ import javafx.beans.property.StringProperty;
  * Contains the name, category, and score of each assignment in the class
  * @author lukecjm
  */
-public class Assignment {
+public class Assignment 
+{
     private StringProperty assignmentName;
     private StringProperty assignmentCategory; //category in the grading scale
     private FloatProperty assignmentScore;
     private FloatProperty assignmentTotalScore;
     
-    Assignment()
+    public Assignment()
     {
         // default constructor.
         assignmentName = null;
@@ -27,14 +28,15 @@ public class Assignment {
         assignmentCategory = null;
     }
     
-    Assignment(StringProperty aName, FloatProperty totalScore)
+    public Assignment(StringProperty aName, FloatProperty totalScore)
     {
         // if this class isn't weighted, set the category to null.
         this(aName, totalScore, null);
         
     }
     
-    Assignment(StringProperty aName, FloatProperty totalScore, StringProperty aCategory)
+    public Assignment(StringProperty aName, FloatProperty totalScore, 
+            StringProperty aCategory)
     {
         assignmentName = aName;
         assignmentTotalScore = totalScore;
@@ -46,20 +48,40 @@ public class Assignment {
         assignmentScore = aScore;
     }
     
-    /*
-    Assignment(StringProperty aName, FloatProperty score, 
-            FloatProperty totalScore, StringProperty sName)
+    public FloatProperty getScore()
     {
-        // create teacher assignment
-        assignmentName = aName;
-        assignmentScore = score;
-        assignmentTotalScore = totalScore;
-        studentName = sName;
+        return assignmentScore;
     }
-    */
-  
     
+    public void setTotalScore(FloatProperty aTotalScore)
+    {
+        assignmentTotalScore = aTotalScore;
+    }
     
+    public FloatProperty getTotalScore()
+    {
+        return assignmentTotalScore;
+    }
     
+    public void setAssignmentName(StringProperty aName)
+    {
+        assignmentName = aName;
+    }
     
+    public StringProperty getAssignmentName()
+    {
+        return assignmentName;
+    }
+    
+    public void setAssigmmentCategory(StringProperty aCategory)
+    {
+        assignmentCategory = aCategory;
+    }
+    
+    public StringProperty getAssingmentCategory()
+    {
+        return assignmentCategory;
+    }
+    
+        
 }
