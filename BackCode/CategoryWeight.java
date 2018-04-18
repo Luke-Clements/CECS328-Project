@@ -1,3 +1,5 @@
+package BackCode;
+
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
 
@@ -14,4 +16,6 @@ import javafx.beans.property.StringProperty;
 public class CategoryWeight {
     private StringProperty cwCategory;
     private IntegerProperty cwWeight;
+    
+    
 }
