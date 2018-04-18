@@ -51,7 +51,9 @@ public class Class {
     public void setSemester(StringProperty cSemester){
         classSemester = cSemester;
     }
-    
+    public void setSchool(StringProperty cSchool){
+        classSchool = cSchool;
+    }
     
     
     //Getters
@@ -65,6 +67,9 @@ public class Class {
     
     public StringProperty getSemester(){
         return classSemester;
+    }
+    public StringProperty getSchool(){
+        return classSchool;
     }
             
             
