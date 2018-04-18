@@ -23,7 +23,7 @@ public class Class {
     private Assignment[] cAssignments;
 
 
-    Class(){
+    public Class(){
         className = null;
         classTeacherName = null;
         classSemester = null;
@@ -31,14 +31,44 @@ public class Class {
         cID = null;
     }
     
-    Class(StringProperty cName, StringProperty cTeacherName, StringProperty cSemester, StringProperty cSchool){
+    public Class(StringProperty cName, StringProperty cTeacherName, StringProperty cSemester, StringProperty cSchool){
         className = cName;
         classTeacherName = cTeacherName;
         classSemester = cSemester;
         classSchool = cSchool;
     }
-        
+    
+    
+    //Setters
+    public void setName(StringProperty cName){
+        className = cName;
+    }
+    
+    public void setTeacher(StringProperty cTeacherName){
+        classTeacherName = cTeacherName;
+    }
+    
+    public void setSemester(StringProperty cSemester){
+        classSemester = cSemester;
+    }
+    
+    
+    
+    //Getters
+    public StringProperty getName(){
+        return className;
+    }
+    
+    public StringProperty getTeacher(){
+        return classTeacherName;
+    }
+    
+    public StringProperty getSemester(){
+        return classSemester;
+    }
             
             
+    
+    
     
 }
