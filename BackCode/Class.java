@@ -1,3 +1,5 @@
+package BackCode;
+
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
 
@@ -18,4 +20,8 @@ public class Class {
     private IntegerProperty cID;
     private GradingScale cGradingScale; //not sure if this should be a string or not
     private Assignment[] cAssignments;
+    
+    
+    
+    
 }
