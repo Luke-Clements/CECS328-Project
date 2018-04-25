@@ -43,14 +43,11 @@ public class Assignment
         assignmentCategory = aCategory;
     }
     
+    // set methods
+    
     public void setScore(FloatProperty aScore)
     {
         assignmentScore = aScore;
-    }
-    
-    public FloatProperty getScore()
-    {
-        return assignmentScore;
     }
     
     public void setTotalScore(FloatProperty aTotalScore)
@@ -58,19 +55,9 @@ public class Assignment
         assignmentTotalScore = aTotalScore;
     }
     
-    public FloatProperty getTotalScore()
-    {
-        return assignmentTotalScore;
-    }
-    
     public void setName(StringProperty aName)
     {
         assignmentName = aName;
-    }
-    
-    public StringProperty getName()
-    {
-        return assignmentName;
     }
     
     public void setCategory(StringProperty aCategory)
@@ -78,10 +65,27 @@ public class Assignment
         assignmentCategory = aCategory;
     }
     
+    
+    // get methods
+    
+    public FloatProperty getScore()
+    {
+        return assignmentScore;
+    }
+    
+    public FloatProperty getTotalScore()
+    {
+        return assignmentTotalScore;
+    }
+    
+    public StringProperty getName()
+    {
+        return assignmentName;
+    }
+    
     public StringProperty getCategory()
     {
         return assignmentCategory;
     }
-    
-        
+      
 }
