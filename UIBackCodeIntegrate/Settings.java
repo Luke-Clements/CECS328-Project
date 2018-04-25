@@ -1,6 +1,4 @@
 package BackCode;
-
-
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
 
@@ -14,33 +12,34 @@ public class Settings
     private StringProperty userName;
     private IntegerProperty idNumber;
     
-    public StringProperty getUserName()
+    //Setters
+    public void setUserName(StringProperty un){//User Name
+        this.userName = un;
+    }
+    
+    public void setIDNumber(IntegerProperty id)//ID Number
+    {
+        this.idNumber = id;
+    }
+    
+    public void setFilePathToDataBaseFile(StringProperty filepath)//File Path
+    {
+        this.filePathToDataBaseFile = filepath;
+    }
+    
+    //Getters
+    public StringProperty getUserName()//User Name
     {
         return userName;
     }
     
-    public IntegerProperty getIDNumber()
+    public IntegerProperty getIDNumber()//ID Number
     {
         return idNumber;
     }
     
-    public StringProperty getFilePathToDataBaseFile()
+    public StringProperty getFilePathToDataBaseFile()//File Path
     {
         return filePathToDataBaseFile;
-    }
-    
-    public void setUserName(String un)
-    {
-        this.userName.setValue(un);
-    }
-    
-    public void setIDNumber(int id)
-    {
-        this.idNumber.setValue(id);
-    }
-    
-    public void setFilePathToDataBaseFile(String filepath)
-    {
-        this.filePathToDataBaseFile.setValue(filepath);
     }
 }
