@@ -41,5 +41,8 @@ public class CategoryWeight
         return categories.get(cName);
     }
     
-    
+    public HashMap<StringProperty, IntegerProperty> getCategoryWeight()
+    {
+        return categories;
+    }
 }
