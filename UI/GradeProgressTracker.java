@@ -142,7 +142,7 @@ public class GradeProgressTracker extends Application {
             }
         }
         
-        db = new Database("jdbc:derby:GPTTest;create=true", saveLocationDb);
+        db = new Database("jdbc:derby:GPTTest;create=true", settings.getFilePathToDataBaseFile().get());
         
         conn = db.getConnection();
 
@@ -254,7 +254,7 @@ public class GradeProgressTracker extends Application {
             fw.close();
         } catch (Exception ex) 
         {
-
+            
         }
     }
     
