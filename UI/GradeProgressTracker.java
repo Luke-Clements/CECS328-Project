@@ -6,7 +6,7 @@
 package UI;
 
 import BackCode.*;
-import DataBase.*;
+import Database.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
