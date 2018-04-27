@@ -1,5 +1,9 @@
 package BackCode;
-import javafx.beans.property.IntegerProperty;
+
+
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 /**
@@ -10,36 +14,35 @@ public class Settings
 {
     private StringProperty filePathToDataBaseFile;
     private StringProperty userName;
-    private IntegerProperty idNumber;
+    private LongProperty idNumber;
     
-    //Setters
-    public void setUserName(StringProperty un){//User Name
-        this.userName = un;
-    }
-    
-    public void setIDNumber(IntegerProperty id)//ID Number
-    {
-        this.idNumber = id;
-    }
-    
-    public void setFilePathToDataBaseFile(StringProperty filepath)//File Path
-    {
-        this.filePathToDataBaseFile = filepath;
-    }
-    
-    //Getters
-    public StringProperty getUserName()//User Name
+    public StringProperty getUserName()
     {
         return userName;
     }
     
-    public IntegerProperty getIDNumber()//ID Number
+    public LongProperty getIDNumber()
     {
         return idNumber;
     }
     
-    public StringProperty getFilePathToDataBaseFile()//File Path
+    public StringProperty getFilePathToDataBaseFile()
     {
         return filePathToDataBaseFile;
+    }
+    
+    public void setUserName(String un)
+    {
+        this.userName = new SimpleStringProperty(un);
+    }
+    
+    public void setIDNumber(long id)
+    {
+        this.idNumber = new SimpleLongProperty(id);
+    }
+    
+    public void setFilePathToDataBaseFile(String filepath)
+    {
+        this.filePathToDataBaseFile = new SimpleStringProperty(filepath);
     }
 }
