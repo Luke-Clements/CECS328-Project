@@ -18,13 +18,13 @@ public class Assignment
     private StringProperty assignmentName;
     private StringProperty assignmentCategory; //category in the grading scale
     private FloatProperty assignmentScore;
-    private FloatProperty assignmentTotalScore;
+    private FloatProperty assignmentMaxScore;
     
     public Assignment()
     {
         // default constructor.
         assignmentName = null;
-        assignmentTotalScore = null;
+        assignmentMaxScore = null;
         assignmentCategory = null;
     }
     
@@ -35,11 +35,11 @@ public class Assignment
         
     }
     
-    public Assignment(StringProperty aName, FloatProperty totalScore, 
+    public Assignment(StringProperty aName, FloatProperty maxScore, 
             StringProperty aCategory)
     {
         assignmentName = aName;
-        assignmentTotalScore = totalScore;
+        assignmentMaxScore = maxScore;
         assignmentCategory = aCategory;
     }
     
@@ -50,9 +50,9 @@ public class Assignment
         assignmentScore = aScore;
     }
     
-    public void setTotalScore(FloatProperty aTotalScore)
+    public void setTotalScore(FloatProperty aMaxScore)
     {
-        assignmentTotalScore = aTotalScore;
+        assignmentMaxScore = aMaxScore;
     }
     
     public void setName(StringProperty aName)
@@ -73,9 +73,9 @@ public class Assignment
         return assignmentScore;
     }
     
-    public FloatProperty getTotalScore()
+    public FloatProperty getMaxScore()
     {
-        return assignmentTotalScore;
+        return assignmentMaxScore;
     }
     
     public StringProperty getName()
