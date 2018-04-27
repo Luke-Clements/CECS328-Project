@@ -6,16 +6,20 @@
 package UI;
 
 import BackCode.*;
+import DataBase.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.Event;;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -28,9 +32,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -48,9 +52,10 @@ public class GradeProgressTracker extends Application {
 
     //this filepath contains info for startup of the program. This must be in the 
     //  same folder to the .exe file for this program as it is static
-    private final String filePathToSettingsInfo = "/Desktop/Settings.json";
+    private final String filePathToSettingsInfo = System.getProperty("user.dir") + "/Settings.json";
     private Settings settings;
     private ObservableList<ClassGrade> classGradeItem;
+    private Connection conn;
     
     @Override
     public void start(Stage primaryStage) 
@@ -103,45 +108,154 @@ public class GradeProgressTracker extends Application {
         launch(args);
     }
     
+    private String[] databaseStrings = {"CREATE TABLE GPTTest.Customers ( \n" +
+"	cfirstname VARCHAR(20) NOT NULL, \n" +
+"        clastname VARCHAR(20) NOT NULL, \n" +
+"        cphone VARCHAR(20) NOT NULL, \n" +
+"	cstreet VARCHAR(50), \n" +
+"	czipcode VARCHAR(5))"};
     //incomplete
     public void InitialStartup(Stage primaryStage)
     {
         File settingsFile = new File(filePathToSettingsInfo);
-        File saveLocation;
+        String saveLocationDb;
+        Database db;
+        settings = new Settings();
+
         if(settingsFile.exists())
         {
-            JSONParser parser = new JSONParser();
-            
-            try
-            {
-                JSONObject jsonObj = (JSONObject) parser.parse(new FileReader(filePathToSettingsInfo));
-                
-                settings.setFilePathToDataBaseFile((String)jsonObj.get("DatabaseFilepath"));
-                settings.setIDNumber((int)jsonObj.get("Id"));
-                settings.setUserName((String)jsonObj.get("Username"));
-            } catch (FileNotFoundException e) {
-                System.out.println("The selected file at " + filePathToSettingsInfo + " does not exist.");
-            } catch (IOException ex) {
-                System.out.println("There was an error reading the file.");
-            } catch (ParseException ex) {
-                System.out.println("The file data has been corrupted.");
-            }
+            LoadSettingsFile();
+            saveLocationDb = settings.getFilePathToDataBaseFile().toString();
         }
         else
         {
             //setup action on save button click
             DirectoryChooser dirChooser = new DirectoryChooser();
-            saveLocation = dirChooser.showDialog(primaryStage);
+            saveLocationDb = dirChooser.showDialog(primaryStage).getAbsolutePath();
             
-            //get username and userID
-            //create remaining file that are necessary
+            settings.setFilePathToDataBaseFile(saveLocationDb);
+            GetUsernameAndId();
+            
+            if(!settingsFile.exists())
+            {
+                SaveSettingsFile();
+            }
+        }
+        
+        db = new Database("jdbc:derby:GPTTest;create=true", saveLocationDb);
+        
+        conn = db.getConnection();
+
+        if(db.IsEmpty(conn))
+        {
+            db.initializeDatabase(conn, databaseStrings);
         }
     }
     
-    //incomplete
-    public void SetFileSavePath()
+    public void GetUsernameAndId()
     {
-        
+        Stage secondaryStage = new Stage();
+        VBox usernameID = new VBox();
+        HBox username = new HBox();
+        HBox id = new HBox();
+        TextField idField = new TextField();
+        TextField usernameField = new TextField();
+        Label idError = new Label("Invalid id number.");
+        Label usernameError = new Label("Invalid username.");
+        Button saveBtn = new Button("Save");
+
+        username.getChildren().addAll(new Label("Enter a username: "), usernameField, usernameError);
+        id.getChildren().addAll(new Label("Enter an id: "), idField, idError);
+
+        saveBtn.setOnMouseClicked((Event event) -> {
+            if(!usernameField.getText().equals(""))
+            {
+                settings.setUserName(usernameField.getText());
+                usernameError.setVisible(false);
+            }
+            else
+            {
+                usernameError.setTextFill(Color.RED);
+                usernameError.setVisible(true);
+            }
+
+            try
+            {
+                if(!idField.getText().equals(""))
+                {
+                    settings.setIDNumber(Integer.parseInt(idField.getText()));
+                    idError.setVisible(false);
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
+            catch(Exception e)
+            {
+                idError.setTextFill(Color.RED);
+                idError.setVisible(true);
+            }
+
+            if(!idError.isVisible() && !usernameError.isVisible())
+            {
+                secondaryStage.close();
+            }
+        });
+
+        idError.setVisible(false);
+        usernameError.setVisible(false);
+        usernameID.getChildren().addAll(username, id, saveBtn);
+
+        Scene scene = new Scene(usernameID, 500, 425);
+        secondaryStage.setScene(scene);
+        secondaryStage.showAndWait();
+    }
+    
+    public void LoadSettingsFile()
+    {
+        JSONParser parser = new JSONParser();
+            
+        try
+        {
+            System.out.println(filePathToSettingsInfo);
+            Object object = parser.parse(new FileReader(filePathToSettingsInfo));
+            JSONObject jsonObj = (JSONObject)object;
+
+            System.out.println("afterparse");
+            settings.setFilePathToDataBaseFile((String)jsonObj.get("DatabaseFilepath"));
+            System.out.println(settings.getFilePathToDataBaseFile().get());
+            settings.setIDNumber((long)jsonObj.get("Id"));
+            System.out.println(settings.getIDNumber());
+            settings.setUserName((String)jsonObj.get("Username"));
+            System.out.println(settings.getUserName());
+        } catch (FileNotFoundException e) {
+            System.out.println("The selected file at " + filePathToSettingsInfo + " does not exist.");
+        } catch (IOException ex) {
+            System.out.println("There was an error reading the file.");
+        } catch (ParseException ex) {
+            System.out.println("The file data has been corrupted.");
+            ex.printStackTrace();
+        }
+    }
+    
+    public void SaveSettingsFile()
+    {
+        JSONObject obj = new JSONObject();
+            
+        obj.put("DatabaseFilepath", settings.getFilePathToDataBaseFile().get());
+        obj.put("Id", settings.getIDNumber().get());
+        obj.put("Username", settings.getUserName().get());
+
+        try {
+            FileWriter fw = new FileWriter(filePathToSettingsInfo);
+
+            fw.write(obj.toJSONString());
+            fw.close();
+        } catch (Exception ex) 
+        {
+
+        }
     }
     
     public ObservableList<ClassGrade> SetupSearchTableResults(String searchItem)
