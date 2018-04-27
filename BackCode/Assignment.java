@@ -50,7 +50,7 @@ public class Assignment
         assignmentScore = aScore;
     }
     
-    public void setTotalScore(FloatProperty aMaxScore)
+    public void setMaxScore(FloatProperty aMaxScore)
     {
         assignmentMaxScore = aMaxScore;
     }
