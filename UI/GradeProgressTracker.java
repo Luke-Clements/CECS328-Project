@@ -14,8 +14,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -48,7 +46,7 @@ import org.json.simple.parser.ParseException;
  * @author lukecjm
  */
 public class GradeProgressTracker extends Application {
-    private final String[] classInfoCategories = {"Class Name", "Semester", "Grade", "Professor", "School", "Assignment Name"};
+    private final String[] classInfoCategories = {"Class Name", "Semester", "Grade", "Professor", "School"};
 
     //this filepath contains info for startup of the program. This must be in the 
     //  same folder to the .exe file for this program as it is static
@@ -107,13 +105,7 @@ public class GradeProgressTracker extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-    
-    private String[] databaseStrings = {"CREATE TABLE GPTTest.Customers ( \n" +
-"	cfirstname VARCHAR(20) NOT NULL, \n" +
-"        clastname VARCHAR(20) NOT NULL, \n" +
-"        cphone VARCHAR(20) NOT NULL, \n" +
-"	cstreet VARCHAR(50), \n" +
-"	czipcode VARCHAR(5))"};
+
     //incomplete
     public void InitialStartup(Stage primaryStage)
     {
@@ -124,8 +116,9 @@ public class GradeProgressTracker extends Application {
 
         if(settingsFile.exists())
         {
+            System.out.println("loaded settings file");
             LoadSettingsFile();
-            saveLocationDb = settings.getFilePathToDataBaseFile().toString();
+            saveLocationDb = settings.getFilePathToDataBaseFiles().toString();
         }
         else
         {
@@ -133,25 +126,35 @@ public class GradeProgressTracker extends Application {
             DirectoryChooser dirChooser = new DirectoryChooser();
             saveLocationDb = dirChooser.showDialog(primaryStage).getAbsolutePath();
             
-            settings.setFilePathToDataBaseFile(saveLocationDb);
+            settings.setFilePathToDataBaseFiles(saveLocationDb);
             GetUsernameAndId();
+            settings.setUserMode(settings.STUDENT);
             
             if(!settingsFile.exists())
             {
                 SaveSettingsFile();
             }
         }
+        System.out.println(settings.getFilePathToDataBaseFiles().get());
         
-        db = new Database("jdbc:derby:GPTTest;create=true", settings.getFilePathToDataBaseFile().get());
+        if(settings.getUserMode() == settings.STUDENT)
+        {
+            db = new Database("jdbc:derby:GPTStudentTest;create=true", settings.getFilePathToDataBaseFiles().get());
+        }
+        else
+        {
+            db = new Database("jdbc:derby:GPTTeacherTest;create=true", settings.getFilePathToDataBaseFiles().get());
+        }
         
         conn = db.getConnection();
-
-        if(db.IsEmpty(conn))
-        {
-            db.initializeDatabase(conn, databaseStrings);
-        }
+//
+//        if(db.IsEmpty(conn))
+//        {
+//            db.initializeDatabase(conn, settings.getFilePathToDataBaseFiles().get());
+//        }
     }
     
+    //finished
     public void GetUsernameAndId()
     {
         Stage secondaryStage = new Stage();
@@ -212,6 +215,7 @@ public class GradeProgressTracker extends Application {
         secondaryStage.showAndWait();
     }
     
+    //finished
     public void LoadSettingsFile()
     {
         JSONParser parser = new JSONParser();
@@ -223,12 +227,14 @@ public class GradeProgressTracker extends Application {
             JSONObject jsonObj = (JSONObject)object;
 
             System.out.println("afterparse");
-            settings.setFilePathToDataBaseFile((String)jsonObj.get("DatabaseFilepath"));
-            System.out.println(settings.getFilePathToDataBaseFile().get());
+            settings.setFilePathToDataBaseFiles((String)jsonObj.get("DatabaseFilepath"));
+            System.out.println(settings.getFilePathToDataBaseFiles().get());
             settings.setIDNumber((long)jsonObj.get("Id"));
             System.out.println(settings.getIDNumber());
             settings.setUserName((String)jsonObj.get("Username"));
             System.out.println(settings.getUserName());
+            settings.setUserMode((long)jsonObj.get("UserMode"));
+            System.out.println(settings.getUserMode());
         } catch (FileNotFoundException e) {
             System.out.println("The selected file at " + filePathToSettingsInfo + " does not exist.");
         } catch (IOException ex) {
@@ -239,13 +245,15 @@ public class GradeProgressTracker extends Application {
         }
     }
     
+    //finished
     public void SaveSettingsFile()
     {
         JSONObject obj = new JSONObject();
             
-        obj.put("DatabaseFilepath", settings.getFilePathToDataBaseFile().get());
+        obj.put("DatabaseFilepath", settings.getFilePathToDataBaseFiles().get());
         obj.put("Id", settings.getIDNumber().get());
         obj.put("Username", settings.getUserName().get());
+        obj.put("UserMode", settings.getUserMode());
 
         try {
             FileWriter fw = new FileWriter(filePathToSettingsInfo);
@@ -254,10 +262,11 @@ public class GradeProgressTracker extends Application {
             fw.close();
         } catch (Exception ex) 
         {
-            
+
         }
     }
     
+    //finished
     public ObservableList<ClassGrade> SetupSearchTableResults(String searchItem)
     {
         ArrayList<ClassGrade> tableResults = new ArrayList();
@@ -306,10 +315,6 @@ public class GradeProgressTracker extends Application {
         professorCol.setCellValueFactory(new PropertyValueFactory("professorName"));
         TableColumn<ClassGrade,String> schoolCol = new TableColumn(classInfoCategories[4]);
         schoolCol.setCellValueFactory(new PropertyValueFactory("schoolName"));
-        //need completed assignment class before testing this, 
-        //  don't forgot to modify the line below to add this to the table
-//        TableColumn<ClassGrade,String> assignmentCol = new TableColumn(classInfoCategories[3]);
-//        assignmentCol.setCellValueFactory(new PropertyValueFactory("assignmentName"));
 
         classGradeTable.getColumns().setAll(classNameCol, semesterCol, gradeCol, professorCol, schoolCol);
         
@@ -359,9 +364,9 @@ public class GradeProgressTracker extends Application {
         //setup action on save button click
         FileChooser fileChooser = new FileChooser();
         //only updates the filepath for the save window if it has been initialized
-        if((new Settings()).getFilePathToDataBaseFile() != null)
+        if(settings.getFilePathToDataBaseFiles().get() != null)
         {
-            fileChooser.setInitialDirectory(new File((new Settings()).getFilePathToDataBaseFile().get()));
+            fileChooser.setInitialDirectory(new File(settings.getFilePathToDataBaseFiles().get()));
         }
         saveClass.setOnMouseClicked(e -> 
         {
