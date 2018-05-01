@@ -284,8 +284,7 @@ public class GradeProgressTracker extends Application {
                    classGradeItem.get(i).getGrade().contains(searchItem) ||
                    classGradeItem.get(i).getProfessorName().contains(searchItem) ||
                    classGradeItem.get(i).getSchoolName().contains(searchItem) ||
-                   classGradeItem.get(i).getSemester().contains(searchItem) ||
-                   classGradeItem.get(i).getAssignment().toString().contains(searchItem))
+                   classGradeItem.get(i).getSemester().contains(searchItem))
                 {
                     tableResults.add(classGradeItem.get(i));
                 }
