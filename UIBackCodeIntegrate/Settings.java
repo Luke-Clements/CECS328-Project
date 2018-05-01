@@ -12,9 +12,12 @@ import javafx.beans.property.StringProperty;
  */
 public class Settings 
 {
-    private StringProperty filePathToDataBaseFile;
+    private StringProperty filePathToDataBaseFiles;
     private StringProperty userName;
     private LongProperty idNumber;
+    public static final long STUDENT = 1; //for comparing which mode is being used 
+    public static final long TEACHER = 0;
+    private LongProperty userMode;
     
     public StringProperty getUserName()
     {
@@ -26,9 +29,21 @@ public class Settings
         return idNumber;
     }
     
-    public StringProperty getFilePathToDataBaseFile()
+    public StringProperty getFilePathToDataBaseFiles()
     {
-        return filePathToDataBaseFile;
+        return filePathToDataBaseFiles;
+    }
+    
+    public long getUserMode()
+    {
+        if(this.userMode.get() == STUDENT)
+        {
+            return STUDENT;
+        }
+        else
+        {
+            return TEACHER;
+        }
     }
     
     public void setUserName(String un)
@@ -41,8 +56,13 @@ public class Settings
         this.idNumber = new SimpleLongProperty(id);
     }
     
-    public void setFilePathToDataBaseFile(String filepath)
+    public void setFilePathToDataBaseFiles(String filepath)
     {
-        this.filePathToDataBaseFile = new SimpleStringProperty(filepath);
+        this.filePathToDataBaseFiles = new SimpleStringProperty(filepath);
+    }
+    
+    public void setUserMode(long um)
+    {
+        this.userMode = new SimpleLongProperty(um);
     }
 }
