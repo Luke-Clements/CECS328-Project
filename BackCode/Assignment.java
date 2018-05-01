@@ -1,6 +1,7 @@
 package BackCode;
 
 import javafx.beans.property.FloatProperty;
+import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.StringProperty;
 
 /*
@@ -19,6 +20,7 @@ public class Assignment
     private StringProperty assignmentCategory; //category in the grading scale
     private FloatProperty assignmentScore;
     private FloatProperty assignmentMaxScore;
+    private FloatProperty assignmentGrade;
     
     public Assignment()
     {
@@ -26,6 +28,7 @@ public class Assignment
         assignmentName = null;
         assignmentMaxScore = null;
         assignmentCategory = null;
+        assignmentGrade = null;
     }
     
     public Assignment(StringProperty aName, FloatProperty totalScore)
@@ -41,6 +44,7 @@ public class Assignment
         assignmentName = aName;
         assignmentMaxScore = maxScore;
         assignmentCategory = aCategory;
+        assignmentGrade = null;
     }
     
     // set methods
@@ -48,9 +52,10 @@ public class Assignment
     public void setScore(FloatProperty aScore)
     {
         assignmentScore = aScore;
+        assignmentGrade = new SimpleFloatProperty(assignmentScore.get()/assignmentMaxScore.get());
     }
     
-    public void setMaxScore(FloatProperty aMaxScore)
+    public void setTotalScore(FloatProperty aMaxScore)
     {
         assignmentMaxScore = aMaxScore;
     }
@@ -64,7 +69,6 @@ public class Assignment
     {
         assignmentCategory = aCategory;
     }
-    
     
     // get methods
     
@@ -87,5 +91,8 @@ public class Assignment
     {
         return assignmentCategory;
     }
-      
+    public FloatProperty getGrade()
+    {
+        return assignmentGrade;
+    }
 }
