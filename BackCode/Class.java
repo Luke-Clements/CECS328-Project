@@ -54,6 +54,9 @@ public class Class {
     public void setSchool(StringProperty cSchool){
         classSchool = cSchool;
     }
+    public void setID(IntegerProperty id){
+        cID = id;
+    }
     
     
     //Getters
@@ -71,9 +74,7 @@ public class Class {
     public StringProperty getSchool(){
         return classSchool;
     }
-            
-            
-    
-    
-    
+    public IntegerProperty getID(){
+        return cID;
+    }
 }
