@@ -10,14 +10,18 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
+import javafx.collections.FXCollections;
 import javafx.event.Event;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -27,8 +31,48 @@ import org.json.simple.parser.ParseException;
  *
  * @author lukecjm
  */
-public class SettingsInfo 
+public final class SettingsInfo 
 {
+    private static final String[] MODE_SETTINGS = {"Teacher", "Student"};
+    public static void SetupSettingsMod(HBox settingsMod, Settings settings)
+    {
+        Button setUsernameID = new Button("Set Username and ID");
+        
+        setUsernameID.setOnMouseClicked(e -> {
+            GetUsernameAndId(settings);
+        });
+        
+        ComboBox modeBox = new ComboBox();
+        modeBox.setItems(FXCollections.observableArrayList(MODE_SETTINGS));
+        
+        modeBox.getSelectionModel().selectedItemProperty().addListener(e -> {
+            System.out.println("hello there");
+            if(modeBox.getSelectionModel().selectedIndexProperty().intValue() != settings.getUserMode())
+            {
+                System.out.println(modeBox.getSelectionModel().selectedIndexProperty().intValue());
+                settings.setUserMode(modeBox.getSelectionModel().selectedIndexProperty().intValue());
+            }
+        });
+        
+        HBox dbFilepathLabelBtn = new HBox();
+        Label dbFilepath = new Label(settings.getFilePathToDataBaseFiles().get());
+        Button setDbFilepath = new Button("Change Database Location");
+        setDbFilepath.setOnMouseClicked(e -> {
+            GetNewDatabaseFilepath(settings);
+        });
+        
+        dbFilepathLabelBtn.getChildren().addAll(dbFilepath, setDbFilepath);
+        
+        settingsMod.getChildren().addAll(setUsernameID, modeBox, dbFilepathLabelBtn);
+    }
+    
+    public static void GetNewDatabaseFilepath(Settings settings)
+    {
+        Stage primaryStage = new Stage();
+        //setup action on save button click
+        DirectoryChooser dirChooser = new DirectoryChooser();
+        settings.setFilePathToDataBaseFiles(dirChooser.showDialog(primaryStage).getAbsolutePath());
+    }
     //finished
     public static void GetUsernameAndId(Settings settings)
     {
@@ -140,5 +184,4 @@ public class SettingsInfo
 
         }
     }
-    
 }
