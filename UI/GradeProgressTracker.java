@@ -59,8 +59,8 @@ public class GradeProgressTracker extends Application
         TabPane mainPane = new TabPane();
         GridPane searchPane = new GridPane();
         HBox classAssignmentModificationsPane = new HBox();
+        HBox settingsModTab = new HBox();
         GridPane calculatePane = new GridPane();
-        GridPane settingsPane = new GridPane();
         Tab classModificationsTab = new Tab("Update Classes");
         Tab searchTab = new Tab("Search");
         Tab calculateGradeTab = new Tab("Calculations");
@@ -70,23 +70,27 @@ public class GradeProgressTracker extends Application
         
         search = new Search();
         
-        //SetupSearchPane
+        //Setup search tab
         // Name(of class), semester(date), grade, GPA by semester, Professor, SchoolName
         search.SetupSearchPane(searchPane);
         
         classMod = new ClassMod();
-        //SetupClassInputPane
+        //Setup class, assignment, category weight, grading scale modifications tab
         // name(of class), semester, grade, professor, schoolName
         SetupClassAssignmentModificationsPane(classAssignmentModificationsPane);
         //end classInputPane setup
         
-        //SetupCalculatePane
+        //Setup calculations tab
         // calculates GPA based on (very similar to search Pane)
+        
+        
+        //Setup settings tab
+        SettingsInfo.SetupSettingsMod(settingsModTab, settings);
         
         classModificationsTab.setContent(classAssignmentModificationsPane);
         searchTab.setContent(searchPane);
         calculateGradeTab.setContent(calculatePane);
-        settingsTab.setContent(settingsPane);
+        settingsTab.setContent(settingsModTab);
         
         mainPane.getTabs().addAll(classModificationsTab, searchTab, calculateGradeTab, settingsTab);
         mainPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
