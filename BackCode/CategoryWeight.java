@@ -1,7 +1,10 @@
 package BackCode;
 
 import java.util.HashMap;
+import java.util.Map;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 /*
@@ -18,14 +21,16 @@ public class CategoryWeight
 {   
   
     // create a hash map where the name of the category and the weight are stored.
-    HashMap<StringProperty, IntegerProperty> categories = new HashMap<>();
+    HashMap<String, Integer> categories = new HashMap<>();
     
     public CategoryWeight()
     {
-        // default constructor.
+        categories.put("Test", 20);
+        categories.put("Homework", 20);
+        categories.put("Final", 20);
     }
     
-    public void addCategory(StringProperty cName, IntegerProperty aWeight)
+    public void addCategory(String cName, Integer aWeight)
     {
         categories.put(cName, aWeight);
     }
@@ -35,19 +40,25 @@ public class CategoryWeight
         categories.remove(cName);
     }
     
-    public IntegerProperty getWeight(StringProperty cName)
+    public Integer getWeight(String cName)
     {
         // Return the weight of that category name inputted.
         return categories.get(cName);
     }
     
-    public IntegerProperty getWeight(String cName)
-    {
-        return categories.get(cName);
-    }
-    
-    public HashMap<StringProperty, IntegerProperty> getCategoryWeight()
+    public HashMap<String, Integer> getCategoryWeight()
     {
         return categories;
+    }
+    public String[] getCategoryWeightInfoArray(Map.Entry<String, Integer> entry)
+    {
+        if(entry != null)
+        {
+            String[] categoryWeightInfo = new String[2];
+            categoryWeightInfo[0] = entry.getKey();
+            categoryWeightInfo[1] = entry.getValue() + "";
+            return categoryWeightInfo;
+        }
+        return null;
     }
 }
