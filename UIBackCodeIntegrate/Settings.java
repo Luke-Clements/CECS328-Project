@@ -18,6 +18,26 @@ public class Settings
     public static final long STUDENT = 1; //for comparing which mode is being used 
     public static final long TEACHER = 0;
     private LongProperty userMode;
+    private static int classCounter = 0;
+    private static int gradingScaleCounter = 0;
+    
+    public void incrementClassCounter()
+    {
+        classCounter++;
+    }
+    public void incrementGradingScaleCounter()
+    {
+        gradingScaleCounter++;
+    }
+    
+    public int getClassCounter()
+    {
+        return classCounter;
+    }
+    public int getGradingScaleCounter()
+    {
+        return gradingScaleCounter;
+    }
     
     public StringProperty getUserName()
     {
@@ -46,6 +66,14 @@ public class Settings
         }
     }
     
+    public void setClassCounter(int cc)
+    {
+        classCounter = cc;
+    }
+    public void setGradingScaleCounter(int gsc)
+    {
+        gradingScaleCounter = gsc;
+    }
     public void setUserName(String un)
     {
         this.userName = new SimpleStringProperty(un);
