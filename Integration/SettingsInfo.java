@@ -184,6 +184,8 @@ public final class SettingsInfo
 //            System.out.println(settings.getUserName());
             settings.setUserMode((long)jsonObj.get("UserMode"));
 //            System.out.println(settings.getUserMode());
+            settings.setClassCounter(Math.toIntExact((long)jsonObj.get("ClassCounter")));
+            settings.setGradingScaleCounter(Math.toIntExact((long)jsonObj.get("GradingScaleCounter")));
         } catch (FileNotFoundException e) {
             System.out.println("The selected file at " + filePathToSettingsInfo + " does not exist.");
         } catch (IOException ex) {
@@ -203,6 +205,8 @@ public final class SettingsInfo
         obj.put("Id", settings.getIDNumber().get());
         obj.put("Username", settings.getUserName().get());
         obj.put("UserMode", settings.getUserMode());
+        obj.put("ClassCounter", settings.getClassCounter());
+        obj.put("GradingScaleCounter", settings.getGradingScaleCounter());
 
         try {
             FileWriter fw = new FileWriter(filePathToSettingsInfo);
