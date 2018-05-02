@@ -65,4 +65,15 @@ public class Settings
     {
         this.userMode = new SimpleLongProperty(um);
     }
+    
+    public static Settings deepEquals(Settings set)
+    {
+        Settings settings = new Settings();
+        
+        settings.setFilePathToDataBaseFiles(set.getFilePathToDataBaseFiles().get());
+        settings.setIDNumber(set.getIDNumber().get());
+        settings.setUserMode(set.getUserMode());
+        settings.setUserName(set.getUserName().get());
+        return settings;
+    }
 }
