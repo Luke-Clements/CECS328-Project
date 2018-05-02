@@ -15,7 +15,11 @@ import Integration.Search;
 import Integration.SettingsInfo;
 import java.io.File;
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -52,6 +56,7 @@ public class GradeProgressTracker extends Application
     private ObservableList<BackCode.Class> classItems;
     private ObservableList<Assignment> assignmentItems;
     private Connection conn;
+    private Database db;
     
     @Override
     public void start(Stage primaryStage) 
@@ -85,7 +90,7 @@ public class GradeProgressTracker extends Application
         
         
         //Setup settings tab
-        SettingsInfo.SetupSettingsMod(settingsModTab, settings);
+        SettingsInfo.SetupSettingsMod(settingsModTab, settings, db, conn, filePathToSettingsInfo);
         
         classModificationsTab.setContent(classAssignmentModificationsPane);
         searchTab.setContent(searchPane);
@@ -95,8 +100,9 @@ public class GradeProgressTracker extends Application
         mainPane.getTabs().addAll(classModificationsTab, searchTab, calculateGradeTab, settingsTab);
         mainPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
         
-        Scene scene = new Scene(mainPane, 750, 425);
+        Scene scene = new Scene(mainPane, 1000, 425);
         
+        primaryStage.sizeToScene();
         primaryStage.setTitle("Grade Progress Tracker");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -114,7 +120,6 @@ public class GradeProgressTracker extends Application
     {
         File settingsFile = new File(filePathToSettingsInfo);
         String saveLocationDb;
-        Database db;
         settings = new Settings();
 
         if(settingsFile.exists())
@@ -136,28 +141,13 @@ public class GradeProgressTracker extends Application
                 SettingsInfo.SaveSettingsFile(settings, filePathToSettingsInfo);
             }
         }
-//        System.out.println(settings.getFilePathToDataBaseFiles().get());
         
-        if(settings.getUserMode() == settings.STUDENT)
-        {
-            db = new Database("jdbc:derby:GPTStudentTest;create=true", settings.getFilePathToDataBaseFiles().get());
-        }
-        else
-        {
-            db = new Database("jdbc:derby:GPTTeacherTest;create=true", settings.getFilePathToDataBaseFiles().get());
-        }
-        
-        conn = db.getConnection();
-//
-//        if(db.IsEmpty(conn))
-//        {
-//            db.initializeDatabase(conn, settings.getFilePathToDataBaseFiles().get());
-//        }
+        conn = SettingsInfo.SetSelectedDatabaseAndGetConnection(settings, db);
     }
    
     public void SetupClassAssignmentModificationsPane(HBox classAssignmentModificationsPane)
     {
-        VBox classTableSearch;
+        VBox classTableSearch = new VBox();
         VBox classModBox = new VBox();
         VBox assignmentModBox = new VBox();
         VBox allModBox = new VBox();
@@ -168,7 +158,7 @@ public class GradeProgressTracker extends Application
         classMod.SetupClassMod(classModBox, classInfo);
         classMod.SetupClassTableResults(null);
 
-        classTableSearch = classMod.SetupClassTable(classModBox, assignmentModBox, gradingScaleModBox, categoryWeightModBox);
+        classMod.SetupClassTable(classTableSearch, classModBox, assignmentModBox, gradingScaleModBox, categoryWeightModBox);
         TableView<Assignment> assignmentTable;
         if(classMod.getClassTable().getSelectionModel().getSelectedItem() == null)
         {
@@ -176,7 +166,7 @@ public class GradeProgressTracker extends Application
         }
         else
         {
-            assignmentTable = AssignmentMod.SetupAssignmentTable(classMod.getClassTable().getSelectionModel().getSelectedItem().getID().get());
+            assignmentTable = AssignmentMod.SetupAssignmentTable(classMod.getClassTable().getSelectionModel().getSelectedItem().getCID());
         }
         //every time a different class is selected in the table, 
         //  the corresponding values are propogated to the classModGrid and the assignment table
