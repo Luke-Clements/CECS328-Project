@@ -72,26 +72,26 @@ public class Assignment
     
     // get methods
     
-    public FloatProperty getScore()
+    public FloatProperty getAssignmentScore()
     {
         return assignmentScore;
     }
     
-    public FloatProperty getMaxScore()
+    public FloatProperty getAssignmentMaxScore()
     {
         return assignmentMaxScore;
     }
     
-    public String getName()
+    public String getAssignmentName()
     {
         return assignmentName.get();
     }
     
-    public String getCategory()
+    public String getAssignmentCategory()
     {
         return assignmentCategory.get();
     }
-    public FloatProperty getGrade()
+    public FloatProperty getAssignmentGrade()
     {
         return assignmentGrade;
     }
