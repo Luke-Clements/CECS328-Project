@@ -30,7 +30,7 @@ public class Class {
         classTeacherName = new SimpleStringProperty("This");
         classSemester = new SimpleStringProperty("To Add");
         classSchool = new SimpleStringProperty("New Class");
-        cID = new SimpleIntegerProperty(0);
+        cID = new SimpleIntegerProperty(-1);
         classTime = new SimpleLongProperty(0);
     }
     
