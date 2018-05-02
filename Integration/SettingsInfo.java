@@ -6,17 +6,19 @@
 package Integration;
 
 import BackCode.Settings;
+import Database.Database;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
+import java.sql.Connection;
 import javafx.collections.FXCollections;
 import javafx.event.Event;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -34,36 +36,64 @@ import org.json.simple.parser.ParseException;
 public final class SettingsInfo 
 {
     private static final String[] MODE_SETTINGS = {"Teacher", "Student"};
-    public static void SetupSettingsMod(HBox settingsMod, Settings settings)
+    
+    public static Connection SetSelectedDatabaseAndGetConnection(Settings settings, Database db)
+    {
+        Connection connect;
+        if(settings.getUserMode() == settings.STUDENT)
+        {
+            db = new Database("jdbc:derby:GPTStudentTest;create=true", settings.getFilePathToDataBaseFiles().get());
+            connect = db.getConnection();
+            
+
+            if(db.IsEmpty(connect))
+            {
+                db.initializeDatabase(connect, settings.getFilePathToDataBaseFiles().get() + "/StudentDatabaseDDL.json");
+            }
+        }
+        else
+        {
+            db = new Database("jdbc:derby:GPTTeacherTest;create=true", settings.getFilePathToDataBaseFiles().get());
+            connect = db.getConnection();
+            
+            if(db.IsEmpty(connect))
+            {
+                db.initializeDatabase(connect, settings.getFilePathToDataBaseFiles().get() + "/TeacherDatabaseDDL.json");
+            }
+        }
+        return connect;
+    }
+    public static void SetupSettingsMod(HBox settingsMod, Settings settings, 
+                Database db, Connection conn, String filepathToSettingsFile)
     {
         Button setUsernameID = new Button("Set Username and ID");
-        
         setUsernameID.setOnMouseClicked(e -> {
             GetUsernameAndId(settings);
+            SaveSettingsFile(settings, filepathToSettingsFile);
         });
         
         ComboBox modeBox = new ComboBox();
         modeBox.setItems(FXCollections.observableArrayList(MODE_SETTINGS));
-        
+        modeBox.setValue(MODE_SETTINGS[Integer.parseInt(Long.toString(settings.getUserMode()))]);
         modeBox.getSelectionModel().selectedItemProperty().addListener(e -> {
             System.out.println("hello there");
             if(modeBox.getSelectionModel().selectedIndexProperty().intValue() != settings.getUserMode())
             {
-                System.out.println(modeBox.getSelectionModel().selectedIndexProperty().intValue());
                 settings.setUserMode(modeBox.getSelectionModel().selectedIndexProperty().intValue());
+                SaveSettingsFile(settings, filepathToSettingsFile);
             }
         });
-        
-        HBox dbFilepathLabelBtn = new HBox();
+
         Label dbFilepath = new Label(settings.getFilePathToDataBaseFiles().get());
         Button setDbFilepath = new Button("Change Database Location");
         setDbFilepath.setOnMouseClicked(e -> {
             GetNewDatabaseFilepath(settings);
+            /****WARNING: Does not account for moving database files to the new location. ALL DATA WILL BE LOST!!!******/
+            SaveSettingsFile(settings, filepathToSettingsFile);
+            dbFilepath.setText(settings.getFilePathToDataBaseFiles().get());
         });
         
-        dbFilepathLabelBtn.getChildren().addAll(dbFilepath, setDbFilepath);
-        
-        settingsMod.getChildren().addAll(setUsernameID, modeBox, dbFilepathLabelBtn);
+        settingsMod.getChildren().addAll(setUsernameID, modeBox, dbFilepath, setDbFilepath);
     }
     
     public static void GetNewDatabaseFilepath(Settings settings)
