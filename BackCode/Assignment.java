@@ -55,7 +55,7 @@ public class Assignment
         assignmentGrade = new SimpleFloatProperty(assignmentScore.get()/assignmentMaxScore.get());
     }
     
-    public void setTotalScore(FloatProperty aMaxScore)
+    public void setMaxScore(FloatProperty aMaxScore)
     {
         assignmentMaxScore = aMaxScore;
     }
