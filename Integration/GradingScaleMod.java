@@ -5,7 +5,9 @@
  */
 package Integration;
 
+import javafx.collections.FXCollections;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
@@ -54,10 +56,12 @@ public class GradingScaleMod
         f.getChildren().addAll(promptF, fText);
         
         HBox passFail = new HBox();
-        TextField passFailText = new TextField();
+        ComboBox passFailBox = new ComboBox();
+        String[] trueFalse = {"True", "False"};
         Label promptpassFail = new Label(GRADING_SCALE_INFO_CATEGORIES[5] + ":");
-        passFailText.setText(gsi[3]);
-        passFail.getChildren().addAll(promptpassFail, passFailText);
+        passFailBox.setItems(FXCollections.observableArrayList(trueFalse));
+        passFailBox.setValue(gsi[5]);
+        passFail.getChildren().addAll(promptpassFail, passFailBox);
         
         Button saveGradingScale = new Button("Save Grading Scale Changes");
 
