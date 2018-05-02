@@ -125,7 +125,7 @@ public class ClassMod
         timeField.setText(classInfo[5]);
         getTime.getChildren().addAll(promptClassTime, timeField);
         
-        Button saveClass = new Button("Save Class Changes");
+        Button saveClass = new Button("Save Class/Grading Scale Changes");
 
         saveClass.setOnMouseClicked(e -> 
         {
