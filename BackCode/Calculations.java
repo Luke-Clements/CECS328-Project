@@ -14,7 +14,6 @@ import java.util.Set;
  */
 public class Calculations 
 {
-    
     //calculate GPA
     public static float calculateGPA(String[] grades)
     {
@@ -53,18 +52,18 @@ public class Calculations
         
         for (Assignment assignment : assignments) 
         {
-            if (assignment.getScore() == null) 
-            {
-                categoryScore.put(assignment.getCategory().get(), 
-                                  categoryScore.get(assignment.getCategory().get()) + assignment.getMaxScore().get());
-            }
-            else
-            {
-                categoryScore.put(assignment.getCategory().get(),
-                                  categoryScore.get(assignment.getCategory().get()) + assignment.getScore().get());
-            }
-            categoryMaxScore.put(assignment.getCategory().get(),
-                                 categoryScore.get(assignment.getCategory().get()) + assignment.getMaxScore().get());
+//            if (assignment.getAssignmentScore() == null) 
+//            {
+//                categoryScore.put(assignment.getAssignmentCategory(), 
+//                                  categoryScore.get(assignment.getAssignmentCategory()) + assignment.getAssignmentMaxScore());
+//            }
+//            else
+//            {
+//                categoryScore.put(assignment.getAssignmentCategory(),
+//                                  categoryScore.get(assignment.getAssignmentCategory()) + assignment.getAssignmentScore());
+//            }
+//            categoryMaxScore.put(assignment.getAssignmentCategory(),
+//                                 categoryScore.get(assignment.getAssignmentCategory()) + assignment.getAssignmentMaxScore());
         }
         
         Set<String> keys = categoryScore.keySet();
@@ -72,7 +71,7 @@ public class Calculations
         for(String key: keys)
         {
             finalScore += 
-                    (categoryScore.get(key)/categoryMaxScore.get(key))*cw.getWeight(key).get();
+                    (categoryScore.get(key)/categoryMaxScore.get(key))*cw.getWeight(key);
         }
         return finalScore;
     }
