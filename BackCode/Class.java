@@ -1,7 +1,9 @@
 package BackCode;
 
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -21,13 +23,15 @@ public class Class {
     private StringProperty classSemester;
     private StringProperty classSchool;
     private IntegerProperty cID;
+    private LongProperty classTime;
 
     public Class(){
-        className = new SimpleStringProperty("test1");
-        classTeacherName = new SimpleStringProperty("test2");
-        classSemester = new SimpleStringProperty("test3");
-        classSchool = new SimpleStringProperty("test4");
-        cID = new SimpleIntegerProperty(1);
+        className = new SimpleStringProperty("Select");
+        classTeacherName = new SimpleStringProperty("This");
+        classSemester = new SimpleStringProperty("To Add");
+        classSchool = new SimpleStringProperty("New Class");
+        cID = new SimpleIntegerProperty(0);
+        classTime = new SimpleLongProperty(0);
     }
     
     public Class(StringProperty cName, StringProperty cTeacherName, StringProperty cSemester, StringProperty cSchool){
@@ -56,6 +60,9 @@ public class Class {
     public void setID(IntegerProperty id){
         cID = id;
     }
+    public void setTime(LongProperty time){
+        classTime = time;
+    }
     
     
     //Getters
@@ -76,13 +83,17 @@ public class Class {
     public int getCID(){
         return cID.get();
     }
+    public Long getClassTime(){
+        return classTime.get();
+    }
     public String[] getClassInfoArray(){
-        String[] classInfo = new String[5];
+        String[] classInfo = new String[6];
         classInfo[0] = cID.get() + "";
         classInfo[1] = className.get();
         classInfo[2] = classSemester.get();
         classInfo[3] = classTeacherName.get();
         classInfo[4] = classSchool.get();
+        classInfo[5] = classTime.get()+"";
         return classInfo;
     }
 }
