@@ -12,7 +12,9 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -61,11 +63,26 @@ public class Database
     
     public boolean IsEmpty(Connection conn)
     {
+        ResultSet rs;
         try {
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM GPTTest.Customers");
-            ps.executeQuery();
-        } catch (SQLException ex) {
+            rs = conn.getMetaData().getTables(null, null, "%", null);
+            
+            if(rs.next())
+            {
+                do
+                {
+                    //will exit if a table that is non system-generated is found
+                    if(!rs.getString(3).contains("SYS"))
+                    {
+                        System.out.println(rs.getString(3));
+                        return false;
+                    }
+                }
+                while(rs.next());
+            }
             return true;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
         return false;
     }
