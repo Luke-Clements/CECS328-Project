@@ -1,6 +1,8 @@
 package BackCode;
 
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 /*
@@ -19,16 +21,13 @@ public class Class {
     private StringProperty classSemester;
     private StringProperty classSchool;
     private IntegerProperty cID;
-    private GradingScale cGradingScale; //not sure if this should be a string or not
-    private Assignment[] cAssignments;
-
 
     public Class(){
-        className = null;
-        classTeacherName = null;
-        classSemester = null;
-        classSchool = null;
-        cID = null;
+        className = new SimpleStringProperty("test1");
+        classTeacherName = new SimpleStringProperty("test2");
+        classSemester = new SimpleStringProperty("test3");
+        classSchool = new SimpleStringProperty("test4");
+        cID = new SimpleIntegerProperty(1);
     }
     
     public Class(StringProperty cName, StringProperty cTeacherName, StringProperty cSemester, StringProperty cSchool){
@@ -60,21 +59,30 @@ public class Class {
     
     
     //Getters
-    public StringProperty getName(){
-        return className;
+    public String getClassName(){
+        return className.get();
     }
     
-    public StringProperty getTeacher(){
-        return classTeacherName;
+    public String getClassTeacherName(){
+        return classTeacherName.get();
     }
     
-    public StringProperty getSemester(){
-        return classSemester;
+    public String getClassSemester(){
+        return classSemester.get();
     }
-    public StringProperty getSchool(){
-        return classSchool;
+    public String getClassSchool(){
+        return classSchool.get();
     }
-    public IntegerProperty getID(){
-        return cID;
+    public int getCID(){
+        return cID.get();
+    }
+    public String[] getClassInfoArray(){
+        String[] classInfo = new String[5];
+        classInfo[0] = cID.get() + "";
+        classInfo[1] = className.get();
+        classInfo[2] = classSemester.get();
+        classInfo[3] = classTeacherName.get();
+        classInfo[4] = classSchool.get();
+        return classInfo;
     }
 }
