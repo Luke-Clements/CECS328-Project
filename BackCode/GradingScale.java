@@ -2,6 +2,8 @@ package BackCode;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.FloatProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 
@@ -28,18 +30,18 @@ public class GradingScale
     private CategoryWeight gsGradingScale;
     
     // Default Grading Scale
-    void GradingScale()
+    public GradingScale()
     {
-        A.set(90);
-        B.set(80);
-        C.set(70);
-        D.set(60);
-        F.set(0);
-        gsPassFail.set(false);
+        A = new SimpleFloatProperty(90);
+        B = new SimpleFloatProperty(80);
+        C = new SimpleFloatProperty(70);
+        D = new SimpleFloatProperty(60);
+        F = new SimpleFloatProperty(50);
+        gsPassFail = new SimpleBooleanProperty(false);
     }
     
     // Allow the user to customize grade percentages.
-    void GradingScale(FloatProperty a, FloatProperty b, FloatProperty c, FloatProperty d, FloatProperty f)
+    public GradingScale(FloatProperty a, FloatProperty b, FloatProperty c, FloatProperty d, FloatProperty f)
     {
         A = a;
         B = b;
@@ -50,7 +52,7 @@ public class GradingScale
     }
     
     // If this is a pass/fail, 
-    void GradingScale(FloatProperty c)
+    public GradingScale(FloatProperty c)
     {
         C = c;
         gsPassFail.set(true);
@@ -81,7 +83,15 @@ public class GradingScale
             default: return F;
         }
     }
-    
-    
-   
+    public String[] getGradingScaleInfoArray()
+    {
+        String[] gradingScaleInfo = new String[6];
+        gradingScaleInfo[0] = A.get() + "";
+        gradingScaleInfo[1] = B.get() + "";
+        gradingScaleInfo[2] = C.get() + "";
+        gradingScaleInfo[3] = D.get() + "";
+        gradingScaleInfo[4] = F.get() + "";
+        gradingScaleInfo[5] = gsPassFail.get() == true ? "True" : "False";
+        return gradingScaleInfo;
+    }
 }
