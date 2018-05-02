@@ -6,7 +6,10 @@
 package Integration;
 
 import java.util.ArrayList;
+import java.util.Map;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
@@ -36,7 +39,7 @@ public class ClassMod
         return classTable;
     }
     
-    public void SetupClassTable(VBox classTableSearch, VBox classMod, VBox assignmentMod, VBox gradingScaleMod, VBox categoryWeightMod)
+    public void SetupClassTable(VBox classTableSearch, VBox classMod, VBox assignmentMod, VBox gradingScaleModBox, VBox categoryWeightMod, TableView<Map.Entry<String, Integer>> categoryWeightTable)
     {
         classTable = new TableView<>();
         TextField search = new TextField();
@@ -65,7 +68,11 @@ public class ClassMod
             String[] classInfo = c.getClassInfoArray();
             AssignmentMod.SetupAssignmentTable(assignmentMod, c.getCID());
             SetupClassMod(classMod, classInfo);
-            //setup CategoriesWeight and GradingScale here
+            BackCode.GradingScale gs = new BackCode.GradingScale();
+            GradingScaleMod.SetupGradingScaleMod(gradingScaleModBox, gs.getGradingScaleInfoArray());
+            BackCode.CategoryWeight cw = new BackCode.CategoryWeight();
+            categoryWeightTable.setItems(FXCollections.observableArrayList(cw.getCategoryWeight().entrySet()));
+            //setup CategoriesWeight
         });
         
         search.setOnKeyTyped(e ->{
@@ -73,8 +80,8 @@ public class ClassMod
             AssignmentMod.SetupAssignmentTable(assignmentMod, -1);
             SetupClassMod(classMod, CLASS_INFO_EMPTY);
             AssignmentMod.SetupAssignmentMod(assignmentMod, AssignmentMod.ASSIGNMENT_INFO_EMPTY);
-            GradingScaleMod.SetupGradingScaleMod(gradingScaleMod, GradingScaleMod.GRADING_SCALE_INFO_EMPTY);
-            CategoryWeightMod.SetupCategoryWeightMod(categoryWeightMod, CategoryWeightMod.CATEGORYWEIGHT_INFO_EMPTY);
+            GradingScaleMod.SetupGradingScaleMod(gradingScaleModBox, GradingScaleMod.GRADING_SCALE_INFO_EMPTY);
+            CategoryWeightMod.SetupCategoryWeightMod(categoryWeightTable, categoryWeightMod, CategoryWeightMod.CATEGORYWEIGHT_INFO_EMPTY);
         });
 
         classTableSearch.getChildren().addAll(search, classTable);
