@@ -44,7 +44,7 @@ public class ClassMod
         return classTable;
     }
     //finished
-    public void SetupClassTable(Settings settings, Connection conn, VBox classTableSearch, VBox classMod, VBox assignmentMod, VBox gradingScaleModBox, VBox categoryWeightMod, TableView<Map.Entry<String, Integer>> categoryWeightTable)
+    public void SetupClassTable(AssignmentMod am, Settings settings, Connection conn, VBox classTableSearch, VBox classMod, VBox assignmentMod, VBox gradingScaleModBox, VBox categoryWeightMod, TableView<Map.Entry<String, Integer>> categoryWeightTable)
     {
         classTable = new TableView<>();
         TextField search = new TextField();
@@ -72,7 +72,7 @@ public class ClassMod
         classTable.getSelectionModel().selectedIndexProperty().addListener(e -> {
             BackCode.Class c = classTable.getSelectionModel().getSelectedItem();
             String[] classInfo = c.getClassInfoArray(); //ignore errors from this line, as they do not affect the program
-            AssignmentMod.SetupAssignmentTable(assignmentMod, c.getCID());
+            am.SetupAssignmentTable(conn, assignmentMod, this);
             SetupClassMod(settings, search, classMod, classInfo, conn);
             BackCode.GradingScale gs = new BackCode.GradingScale();
             GradingScaleMod.SetupGradingScaleMod(gradingScaleModBox, gs.getGradingScaleInfoArray());
@@ -82,9 +82,9 @@ public class ClassMod
         
         search.setOnKeyTyped(e ->{
             classTable.setItems(SetupClassTableResults(search.getText()));
-            AssignmentMod.SetupAssignmentTable(assignmentMod, -1);
+            am.SetupAssignmentTable(conn, assignmentMod, this);
             SetupClassMod(settings, search, classMod, CLASS_INFO_EMPTY, conn);
-            AssignmentMod.SetupAssignmentMod(assignmentMod, AssignmentMod.ASSIGNMENT_INFO_EMPTY);
+            am.SetupAssignmentMod(0, conn, assignmentMod, AssignmentMod.ASSIGNMENT_INFO_EMPTY);
             GradingScaleMod.SetupGradingScaleMod(gradingScaleModBox, GradingScaleMod.GRADING_SCALE_INFO_EMPTY);
             CategoryWeightMod.SetupCategoryWeightMod(categoryWeightTable, categoryWeightMod, CategoryWeightMod.CATEGORYWEIGHT_INFO_EMPTY);
         });
