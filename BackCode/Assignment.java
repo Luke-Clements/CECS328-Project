@@ -82,14 +82,14 @@ public class Assignment
         return assignmentMaxScore;
     }
     
-    public StringProperty getName()
+    public String getName()
     {
-        return assignmentName;
+        return assignmentName.get();
     }
     
-    public StringProperty getCategory()
+    public String getCategory()
     {
-        return assignmentCategory;
+        return assignmentCategory.get();
     }
     public FloatProperty getGrade()
     {
