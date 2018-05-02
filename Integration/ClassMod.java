@@ -63,14 +63,14 @@ public class ClassMod
         classTable.getSelectionModel().selectedIndexProperty().addListener(e -> {
             BackCode.Class c = classTable.getSelectionModel().getSelectedItem();
             String[] classInfo = c.getClassInfoArray();
-            AssignmentMod.SetupAssignmentTable(c.getCID());
+            AssignmentMod.SetupAssignmentTable(assignmentMod, c.getCID());
             SetupClassMod(classMod, classInfo);
             //setup CategoriesWeight and GradingScale here
         });
         
         search.setOnKeyTyped(e ->{
             classTable.setItems(SetupClassTableResults(search.getText()));
-            AssignmentMod.SetupAssignmentTable(-1);
+            AssignmentMod.SetupAssignmentTable(assignmentMod, -1);
             SetupClassMod(classMod, CLASS_INFO_EMPTY);
             AssignmentMod.SetupAssignmentMod(assignmentMod, AssignmentMod.ASSIGNMENT_INFO_EMPTY);
             GradingScaleMod.SetupGradingScaleMod(gradingScaleMod, GradingScaleMod.GRADING_SCALE_INFO_EMPTY);
