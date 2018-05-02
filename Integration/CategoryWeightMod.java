@@ -6,7 +6,6 @@
 package Integration;
 
 import BackCode.CategoryWeight;
-import static Integration.AssignmentMod.SetupAssignmentMod;
 import java.util.ArrayList;
 import java.util.Map;
 import javafx.beans.property.IntegerProperty;
