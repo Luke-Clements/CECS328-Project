@@ -6,6 +6,7 @@
 package Integration;
 
 import java.util.ArrayList;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
@@ -25,7 +26,7 @@ import javafx.scene.layout.VBox;
 public class ClassMod 
 {
     public static final String[] CLASS_GRADE_INFO_CATEGORIES = {"Class Name", "Semester", "Grade", "Professor", "School"};
-    private static final String[] CLASS_INFO_CATEGORIES = {"Class ID", "Class Name", "Semester", "Grade"};
+    private static final String[] CLASS_INFO_CATEGORIES = {"Class ID", "Class Name", "Semester", "Professor", "School"};
     public static final String[] CLASS_INFO_EMPTY = {"", "", "", "", ""}; //empty strings to replace anything in the textFields when a new class is selected
     private ObservableList<BackCode.Class> classItems;
     private TableView<BackCode.Class> classTable;
@@ -35,35 +36,48 @@ public class ClassMod
         return classTable;
     }
     
-    public VBox SetupClassTable(VBox classMod, VBox assignmentMod, VBox gradingScaleMod, VBox categoryWeightMod)
+    public void SetupClassTable(VBox classTableSearch, VBox classMod, VBox assignmentMod, VBox gradingScaleMod, VBox categoryWeightMod)
     {
-        VBox classTableSearch = new VBox();
         classTable = new TableView<>();
+        TextField search = new TextField();
         ArrayList<BackCode.Class> ci = new ArrayList();
         //implement function to return an arraylist of class items
         ci.add(new BackCode.Class());
         classItems = FXCollections.observableList(ci);
         
-        TableColumn<BackCode.Class,String> classIDCol = new TableColumn(CLASS_INFO_CATEGORIES[0]);
+        classTable.setItems(SetupClassTableResults(search.getText()));
+        
+        TableColumn<BackCode.Class,Integer> classIDCol = new TableColumn(CLASS_INFO_CATEGORIES[0]);
         classIDCol.setCellValueFactory(new PropertyValueFactory("cID"));
         TableColumn<BackCode.Class,String> classNameCol = new TableColumn(CLASS_INFO_CATEGORIES[1]);
         classNameCol.setCellValueFactory(new PropertyValueFactory("className"));
         TableColumn<BackCode.Class,String> semesterCol = new TableColumn(CLASS_INFO_CATEGORIES[2]);
         semesterCol.setCellValueFactory(new PropertyValueFactory("classSemester"));
+        TableColumn<BackCode.Class,String> professorCol = new TableColumn(CLASS_INFO_CATEGORIES[3]);
+        professorCol.setCellValueFactory(new PropertyValueFactory("classTeacherName"));
+        TableColumn<BackCode.Class,String> schoolCol = new TableColumn(CLASS_INFO_CATEGORIES[4]);
+        schoolCol.setCellValueFactory(new PropertyValueFactory("classSchool"));
         
-        TextField search = new TextField();
+        classTable.getColumns().setAll(classIDCol, classNameCol, semesterCol, professorCol, schoolCol);
+        
+        classTable.getSelectionModel().selectedIndexProperty().addListener(e -> {
+            BackCode.Class c = classTable.getSelectionModel().getSelectedItem();
+            String[] classInfo = c.getClassInfoArray();
+            AssignmentMod.SetupAssignmentTable(c.getCID());
+            SetupClassMod(classMod, classInfo);
+            //setup CategoriesWeight and GradingScale here
+        });
+        
         search.setOnKeyTyped(e ->{
             classTable.setItems(SetupClassTableResults(search.getText()));
-            AssignmentMod.SetupAssignmentTable(0);
+            AssignmentMod.SetupAssignmentTable(-1);
             SetupClassMod(classMod, CLASS_INFO_EMPTY);
             AssignmentMod.SetupAssignmentMod(assignmentMod, AssignmentMod.ASSIGNMENT_INFO_EMPTY);
             GradingScaleMod.SetupGradingScaleMod(gradingScaleMod, GradingScaleMod.GRADING_SCALE_INFO_EMPTY);
             CategoryWeightMod.SetupCategoryWeightMod(categoryWeightMod, CategoryWeightMod.CATEGORYWEIGHT_INFO_EMPTY);
         });
 
-        classTable.getColumns().setAll(classIDCol, classNameCol, semesterCol);
         classTableSearch.getChildren().addAll(search, classTable);
-        return classTableSearch;
     }
     public void SetupClassMod(VBox classMod, String[] classInfo)
     {
@@ -71,19 +85,14 @@ public class ClassMod
         HBox getClassName = new HBox();
         TextField nameField = new TextField();
         Label promptName = new Label(CLASS_GRADE_INFO_CATEGORIES[0] + ":");
-        nameField.setText(classInfo[0]);
+        nameField.setText(classInfo[1]);
         getClassName.getChildren().addAll(promptName, nameField);
         
         HBox getSemesterName = new HBox();
         TextField semesterField = new TextField();
         Label promptSemester = new Label(CLASS_GRADE_INFO_CATEGORIES[1] + ":");
-        semesterField.setText(classInfo[1]);
+        semesterField.setText(classInfo[2]);
         getSemesterName.getChildren().addAll(promptSemester, semesterField);
-        
-        HBox getGrade = new HBox();
-        TextField gradeField = new TextField();
-        Label promptGrade = new Label(CLASS_GRADE_INFO_CATEGORIES[2] + ":");
-        getGrade.getChildren().addAll(promptGrade, gradeField);
         
         HBox getProfessorName = new HBox();
         TextField professorNameField = new TextField();
@@ -96,7 +105,6 @@ public class ClassMod
         Label promptSchoolName = new Label(CLASS_GRADE_INFO_CATEGORIES[4] + ":");
         schoolNameField.setText(classInfo[4]);
         getSchoolName.getChildren().addAll(promptSchoolName, schoolNameField);
-        GridPane.setConstraints(getSchoolName, 0, 4);
         
         Button saveClass = new Button("Save Class Changes");
 
@@ -105,7 +113,7 @@ public class ClassMod
             //need to execute a update statement in the database
         });
         
-        classMod.getChildren().addAll(getClassName, getSemesterName, getGrade, getProfessorName, getSchoolName, saveClass);
+        classMod.getChildren().addAll(getClassName, getSemesterName, getProfessorName, getSchoolName, saveClass);
     }
     
     //finished
@@ -113,6 +121,7 @@ public class ClassMod
     {
         ArrayList<BackCode.Class> tableResults = new ArrayList();
         
+        //Will add one empty entry to the table for adding a new class
         if(searchItem == null || searchItem.equals(""))
         {
             return classItems;
@@ -122,9 +131,11 @@ public class ClassMod
             for(int i = 0;i < classItems.size();i++)
             {
                 //may want to add String.toUpper() to make this more universal
-                if(classItems.get(i).getName().get().contains(searchItem) ||
-                   (classItems.get(i).getID().get() + "").contains(searchItem) ||
-                   classItems.get(i).getSemester().get().contains(searchItem))
+                if(classItems.get(i).getClassName().contains(searchItem) ||
+                   (classItems.get(i).getCID() + "").contains(searchItem) ||
+                    classItems.get(i).getClassSemester().contains(searchItem) ||
+                    classItems.get(i).getClassSchool().contains(searchItem) ||
+                    classItems.get(i).getClassTeacherName().contains(searchItem))
                 {
                     tableResults.add(classItems.get(i));
                 }
