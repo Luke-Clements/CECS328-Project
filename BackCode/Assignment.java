@@ -2,6 +2,7 @@ package BackCode;
 
 import javafx.beans.property.FloatProperty;
 import javafx.beans.property.SimpleFloatProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 /*
@@ -20,15 +21,20 @@ public class Assignment
     private StringProperty assignmentCategory; //category in the grading scale
     private FloatProperty assignmentScore;
     private FloatProperty assignmentMaxScore;
-    private FloatProperty assignmentGrade;
+//    private FloatProperty assignmentGrade;
     
     public Assignment()
     {
+//        assignmentName = new SimpleStringProperty("yo");
+//        assignmentMaxScore = new SimpleFloatProperty(15);
+//        assignmentCategory = new SimpleStringProperty("yo");
+//        assignmentScore = new SimpleFloatProperty(10);
         // default constructor.
         assignmentName = null;
         assignmentMaxScore = null;
         assignmentCategory = null;
-        assignmentGrade = null;
+        assignmentScore = null;
+//        assignmentGrade = null;
     }
     
     public Assignment(StringProperty aName, FloatProperty totalScore)
@@ -44,7 +50,7 @@ public class Assignment
         assignmentName = aName;
         assignmentMaxScore = maxScore;
         assignmentCategory = aCategory;
-        assignmentGrade = null;
+//        assignmentGrade = null;
     }
     
     // set methods
@@ -52,7 +58,7 @@ public class Assignment
     public void setScore(FloatProperty aScore)
     {
         assignmentScore = aScore;
-        assignmentGrade = new SimpleFloatProperty(assignmentScore.get()/assignmentMaxScore.get());
+//        assignmentGrade = new SimpleFloatProperty(assignmentScore.get()/assignmentMaxScore.get());
     }
     
     public void setMaxScore(FloatProperty aMaxScore)
@@ -72,14 +78,14 @@ public class Assignment
     
     // get methods
     
-    public FloatProperty getAssignmentScore()
+    public float getAssignmentScore()
     {
-        return assignmentScore;
+        return assignmentScore.get();
     }
     
-    public FloatProperty getAssignmentMaxScore()
+    public float getAssignmentMaxScore()
     {
-        return assignmentMaxScore;
+        return assignmentMaxScore.get();
     }
     
     public String getAssignmentName()
@@ -91,8 +97,8 @@ public class Assignment
     {
         return assignmentCategory.get();
     }
-    public FloatProperty getAssignmentGrade()
-    {
-        return assignmentGrade;
-    }
+//    public FloatProperty getAssignmentGrade()
+//    {
+//        return assignmentGrade;
+//    }
 }
