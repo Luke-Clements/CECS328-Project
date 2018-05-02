@@ -6,6 +6,9 @@
 package Integration;
 
 import BackCode.Assignment;
+import java.util.ArrayList;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -23,20 +26,35 @@ public class AssignmentMod
 {
     private static final String[] ASSIGNMENT_INFO_CATEGORIES = {"Assignment Name", "Category", "Score", "Max Score"};
     public static final String[] ASSIGNMENT_INFO_EMPTY = {"", "", "", ""};
+    private static ObservableList<Assignment> assignmentItems;
     
     //sets up Assignment table
-    public static TableView<Assignment> SetupAssignmentTable(int classID)
+    public static TableView<Assignment> SetupAssignmentTable(VBox assignmentModBox, int classID)
     {
         TableView<Assignment> assignmentTable = new TableView<>();
+        ArrayList<Assignment> ai = new ArrayList();
+        ai.add(new Assignment());
+        
+        assignmentItems = FXCollections.observableList(ai);
+        
+        assignmentTable.setItems(assignmentItems);
         
         TableColumn<Assignment,String> aNameCol = new TableColumn(ASSIGNMENT_INFO_CATEGORIES[0]);
         aNameCol.setCellValueFactory(new PropertyValueFactory("assignmentName"));
         TableColumn<Assignment,String> aCategoryCol = new TableColumn(ASSIGNMENT_INFO_CATEGORIES[1]);
         aCategoryCol.setCellValueFactory(new PropertyValueFactory("assignmentCategory"));
-        TableColumn<Assignment,String> aScoreCol = new TableColumn(ASSIGNMENT_INFO_CATEGORIES[2]);
-        aScoreCol.setCellValueFactory(new PropertyValueFactory("assignmentGrade"));
+        TableColumn<Assignment,Float> aScoreCol = new TableColumn(ASSIGNMENT_INFO_CATEGORIES[2]);
+        aScoreCol.setCellValueFactory(new PropertyValueFactory("assignmentScore"));
+        TableColumn<Assignment,Float> aMaxScoreCol = new TableColumn(ASSIGNMENT_INFO_CATEGORIES[3]);
+        aMaxScoreCol.setCellValueFactory(new PropertyValueFactory("assignmentMaxScore"));
+        
+        assignmentTable.getSelectionModel().selectedIndexProperty().addListener(e -> {
+            Assignment a = assignmentTable.getSelectionModel().getSelectedItem();
+            String[] assignmentInfo = a.getAssignmentInfoArray();
+            SetupAssignmentMod(assignmentModBox, assignmentInfo);
+        });
 
-        assignmentTable.getColumns().setAll(aNameCol, aCategoryCol, aScoreCol);
+        assignmentTable.getColumns().setAll(aNameCol, aCategoryCol, aScoreCol, aMaxScoreCol);
         return assignmentTable;
     }
     
