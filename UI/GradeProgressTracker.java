@@ -45,10 +45,11 @@ import javafx.stage.Stage;
  */
 public class GradeProgressTracker extends Application 
 {
-    private String[] classInfo = {"", "", "", "", ""}; //placeholder for loaded values in the SetupClassModPane function
+    private String[] classInfo = {"", "", "", "", "", ""}; //placeholder for loaded values in the SetupClassModPane function
     private String[] assignmentInfo = {"", "", "", ""};
     private String[] gradingScaleInfo = {"", "", "", "", "", ""};
     private ClassMod classMod;
+    private AssignmentMod assignmentMod;
     private Search search;
 
     //this filepath contains info for startup of the program. This must be in the 
@@ -84,6 +85,7 @@ public class GradeProgressTracker extends Application
         search.SetupSearchPane(searchPane);
         
         classMod = new ClassMod();
+        assignmentMod = new AssignmentMod();
         //Setup class, assignment, category weight, grading scale modifications tab
         // name(of class), semester, grade, professor, schoolName
         SetupClassAssignmentModificationsPane(classAssignmentModificationsPane);
@@ -110,6 +112,10 @@ public class GradeProgressTracker extends Application
         primaryStage.setTitle("Grade Progress Tracker");
         primaryStage.setScene(scene);
         primaryStage.show();
+        
+        primaryStage.setOnCloseRequest(e -> {
+            SettingsInfo.SaveSettingsFile(settings, filePathToSettingsInfo);
+        });
     }
 
     /**
@@ -159,16 +165,16 @@ public class GradeProgressTracker extends Application
         VBox categoryWeightModBox = new VBox();
         ScrollPane modPane = new ScrollPane();
         
-        classMod.SetupClassMod(classModBox, classInfo);
+        classMod.SetupClassMod(settings, null, classModBox, classInfo, conn);
         classMod.SetupClassTableResults(null);
 
         TableView<Map.Entry<String, Integer>> categoryWeightTable;
         TableView<Assignment> assignmentTable;
 
-            assignmentTable = AssignmentMod.SetupAssignmentTable(assignmentModBox, 0);
+            assignmentTable = assignmentMod.SetupAssignmentTable(conn, assignmentModBox, classMod);
             categoryWeightTable = CategoryWeightMod.SetupCategoryWeightTable(categoryWeightModBox, 0);
 
-        classMod.SetupClassTable(classTableSearch, classModBox, assignmentModBox, gradingScaleModBox, categoryWeightModBox, categoryWeightTable);
+        classMod.SetupClassTable(assignmentMod, settings, conn, classTableSearch, classModBox, assignmentModBox, gradingScaleModBox, categoryWeightModBox, categoryWeightTable);
         //every time a different class is selected in the table, 
         //  the corresponding values are propogated to the classModGrid and the assignment table
         classMod.getClassTable().getSelectionModel().selectedItemProperty().addListener(e -> 
@@ -186,8 +192,8 @@ public class GradeProgressTracker extends Application
         });
         
         //sets up modifying the class values
-        classMod.SetupClassMod(classModBox, classInfo);
-        AssignmentMod.SetupAssignmentMod(assignmentModBox, assignmentInfo);
+        classMod.SetupClassMod(settings, null, classModBox, classInfo, conn);
+        assignmentMod.SetupAssignmentMod(-1, conn, assignmentModBox, assignmentInfo);
         GradingScaleMod.SetupGradingScaleMod(gradingScaleModBox, GradingScaleMod.GRADING_SCALE_INFO_EMPTY);
         CategoryWeightMod.SetupCategoryWeightMod(categoryWeightTable, categoryWeightModBox, CategoryWeightMod.CATEGORYWEIGHT_INFO_EMPTY);
         
