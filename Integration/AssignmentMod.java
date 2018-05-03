@@ -65,7 +65,15 @@ public class AssignmentMod
         
         assignmentTable.getSelectionModel().selectedIndexProperty().addListener(e -> {
             Assignment a = assignmentTable.getSelectionModel().getSelectedItem();
-            String[] assignmentInfo = a.getAssignmentInfoArray();
+            String[] assignmentInfo;
+            if(a != null)
+            {
+                assignmentInfo = a.getAssignmentInfoArray();
+            }
+            else
+            {
+                assignmentInfo = AssignmentMod.ASSIGNMENT_INFO_EMPTY;
+            }
             SetupAssignmentMod(classID, conn, assignmentModBox, assignmentInfo);
         });
 
@@ -101,7 +109,6 @@ public class AssignmentMod
         getMaxScore.getChildren().addAll(promptMaxScore, maxScoreField);
         
         Button saveAssignment = new Button("Save Assignment Changes");
-
         saveAssignment.setOnMouseClicked(e -> 
         {
             String Stmt = "INSERT INTO Assignment(cID, aName, aCategory, score, maxScore) "+
@@ -146,7 +153,34 @@ public class AssignmentMod
             assignmentTable.setItems(assignmentItems);            
         });
         
-        assignmentMod.getChildren().addAll(getAssignmentName, getCategory, getScore, getMaxScore, saveAssignment);
+        Button deleteAssignment = new Button("Delete Assignment");
+        deleteAssignment.setOnMouseClicked(e -> {
+            deleteAssignment(classID, assignmentTable.getSelectionModel().getSelectedItem(), conn);
+            System.out.println(assignmentTable.getSelectionModel().getSelectedItem().getAssignmentName());
+            System.out.println(assignmentTable.getSelectionModel().getSelectedItem().getAssignmentCategory());
+            assignmentItems = GetAssignmentTableValues(classID, conn);
+            assignmentTable.setItems(assignmentItems);
+        });
+        
+        assignmentMod.getChildren().addAll(getAssignmentName, getCategory, getScore, getMaxScore, saveAssignment, deleteAssignment);
+    }
+    
+    public static void deleteAssignment(int classID, Assignment a, Connection conn)
+    {
+        String stmt = "DELETE FROM Assignment WHERE cID=" + classID + 
+                                            " and aName='" + a.getAssignmentName() +
+                                            "' and aCategory='" + a.getAssignmentCategory() + "'";
+        
+        System.out.println(stmt);
+        try
+        {
+            PreparedStatement pStmt = conn.prepareStatement(stmt);
+            pStmt.executeUpdate();
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+        }
     }
     
     public static ObservableList<Assignment> GetAssignmentTableValues(int classID, Connection conn)
