@@ -28,7 +28,7 @@ public class Assignment
         assignmentName = new SimpleStringProperty("Select to");
         assignmentMaxScore = new SimpleFloatProperty(0);
         assignmentCategory = new SimpleStringProperty("Add New");
-        assignmentScore = new SimpleFloatProperty(0);
+        assignmentScore = null;
         // default constructor.
 //        assignmentName = null;
 //        assignmentMaxScore = null;
@@ -80,7 +80,17 @@ public class Assignment
     
     public float getAssignmentScore()
     {
+        if(assignmentScore == null)
+        {
+            return -1;
+        }
         return assignmentScore.get();
+    }
+    
+    //to distinguish it for Calculations (need to know if score has been 
+    public FloatProperty getAssignmentScore(boolean tf)
+    {
+        return assignmentScore;
     }
     
     public float getAssignmentMaxScore()
@@ -103,7 +113,7 @@ public class Assignment
         String[] assignmentInfo = new String[4];
         assignmentInfo[0] = assignmentName.get();
         assignmentInfo[1] = assignmentCategory.get();
-        assignmentInfo[2] = assignmentScore.get() + "";
+        assignmentInfo[2] = assignmentScore == null ? "-1" : assignmentScore.get() + "";
         assignmentInfo[3] = assignmentMaxScore.get() + "";
         System.out.println(assignmentName.get());
         return assignmentInfo;
