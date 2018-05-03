@@ -77,6 +77,33 @@ public class GradingScaleMod
         gradingScaleMod.getChildren().addAll(a, b, c, d, f, passFail);
     }
     
+    public static String[] getGradingScaleInfo(int gsID, Connection conn)
+    {
+        String stmt = "SELECT * FROM GradingScale WHERE gsID=" + gsID;
+        
+        try
+        {
+            PreparedStatement pStmt = conn.prepareStatement(stmt);
+            ResultSet rs = pStmt.executeQuery();
+
+            if(rs.next())
+            {
+                String[] gradingScaleInfo = new String[6];
+                gradingScaleInfo[0] = rs.getInt("A") + "";
+                gradingScaleInfo[1] = rs.getInt("B") + "";
+                gradingScaleInfo[2] = rs.getInt("C") + "";
+                gradingScaleInfo[3] = rs.getInt("D") + "";
+                gradingScaleInfo[4] = rs.getInt("F") + "";
+                gradingScaleInfo[5] = rs.getBoolean("passFail") == true ? "True" : "False";
+                return gradingScaleInfo;
+            }
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+        }
+        return null;
+    }
     public static String getGradingScaleID(Settings settings, Connection conn)
     {
         String stmt = "SELECT gsID FROM GradingScale where A= " + Float.parseFloat(aText.getText()) +
@@ -88,6 +115,7 @@ public class GradingScaleMod
         
         ResultSet rs = null;
         
+        System.out.println(stmt);
         try
         {
             PreparedStatement ps = conn.prepareStatement(stmt);
@@ -95,6 +123,7 @@ public class GradingScaleMod
             rs = ps.executeQuery();
             
             rs.next();
+            System.out.println(rs.getString("gsID"));
             return rs.getString("gsID");
         }
         catch(SQLException se)
@@ -113,7 +142,8 @@ public class GradingScaleMod
     {
         String Stmt = "INSERT INTO GradingScale(gsID, A, B, C, D, F, passFail) "+
                 "VALUES(?, ?, ?, ?, ?, ?, ?)";
-           
+        
+        //implement find grading scale here
         float a = Float.parseFloat(aText.getText());
         float b = Float.parseFloat(bText.getText());
         float c = Float.parseFloat(cText.getText());
@@ -133,7 +163,7 @@ public class GradingScaleMod
             pStmt.setFloat(3,b);
             pStmt.setFloat(4,c);
             pStmt.setFloat(5,d);
-            pStmt.setFloat(6, f);
+            pStmt.setFloat(6,f);
             pStmt.setBoolean(7, passFail);
 
             pStmt.executeUpdate();
