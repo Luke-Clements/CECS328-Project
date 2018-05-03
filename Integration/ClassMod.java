@@ -80,6 +80,10 @@ public class ClassMod
                 SetupClassMod(settings, search, classMod, classInfo, conn);
                 int gsID = cwm.getGradingScaleID(conn, c.getCID());
                 String[] gsInfo = GradingScaleMod.getGradingScaleInfo(gsID, conn);
+                if(gsInfo == null)
+                {
+                    gsInfo = GradingScaleMod.GRADING_SCALE_INFO_EMPTY;
+                }
                 GradingScaleMod.SetupGradingScaleMod(gradingScaleModBox, gsInfo);
                 cwm.SetupCategoryWeightTable(conn, this, categoryWeightModBox, c.getCID());
             }
