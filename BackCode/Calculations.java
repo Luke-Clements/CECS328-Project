@@ -43,9 +43,9 @@ public class Calculations
     }
     
     //calculate max score for class
-    public static float calculateMaxClassScore(CategoryWeight cw, Assignment[] assignments)
+    public static float calculateMaxClassScore(HashMap<String, Integer> cw, Assignment[] assignments)
     {
-        int numberOfGradingCategories = cw.getCategoryWeight().size();
+        int numberOfGradingCategories = cw.size();
         HashMap<String, Float> categoryScore = new HashMap<>(); // stores the possible best score by the user
         HashMap<String, Float> categoryMaxScore = new HashMap<>(); // 100% on everything in all categories
         float finalScore = 0;
@@ -71,7 +71,7 @@ public class Calculations
         for(String key: keys)
         {
             finalScore += 
-                    (categoryScore.get(key)/categoryMaxScore.get(key))*cw.getWeight(key);
+                    (categoryScore.get(key)/categoryMaxScore.get(key))*cw.get(key);
         }
         return finalScore;
     }
