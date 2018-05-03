@@ -50,6 +50,7 @@ public class GradeProgressTracker extends Application
     private String[] gradingScaleInfo = {"", "", "", "", "", ""};
     private ClassMod classMod;
     private AssignmentMod assignmentMod;
+    private CategoryWeightMod categoryWeightMod;
     private Search search;
 
     //this filepath contains info for startup of the program. This must be in the 
@@ -86,6 +87,7 @@ public class GradeProgressTracker extends Application
         
         classMod = new ClassMod();
         assignmentMod = new AssignmentMod();
+        categoryWeightMod = new CategoryWeightMod();
         //Setup class, assignment, category weight, grading scale modifications tab
         // name(of class), semester, grade, professor, schoolName
         SetupClassAssignmentModificationsPane(classAssignmentModificationsPane);
@@ -106,7 +108,7 @@ public class GradeProgressTracker extends Application
         mainPane.getTabs().addAll(classModificationsTab, searchTab, calculateGradeTab, settingsTab);
         mainPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
         
-        Scene scene = new Scene(mainPane, 1000, 425);
+        Scene scene = new Scene(mainPane, 1250, 425);
         
         primaryStage.sizeToScene();
         primaryStage.setTitle("Grade Progress Tracker");
@@ -172,30 +174,29 @@ public class GradeProgressTracker extends Application
         TableView<Assignment> assignmentTable;
 
             assignmentTable = assignmentMod.SetupAssignmentTable(conn, assignmentModBox, classMod);
-            categoryWeightTable = CategoryWeightMod.SetupCategoryWeightTable(categoryWeightModBox, 0);
+            categoryWeightTable = categoryWeightMod.SetupCategoryWeightTable(conn, classMod, categoryWeightModBox, 0);
 
-        classMod.SetupClassTable(assignmentMod, settings, conn, classTableSearch, classModBox, assignmentModBox, gradingScaleModBox, categoryWeightModBox, categoryWeightTable);
+        classMod.SetupClassTable(categoryWeightMod, assignmentMod, settings, conn, classTableSearch, classModBox, assignmentModBox, gradingScaleModBox, categoryWeightModBox, categoryWeightTable);
         //every time a different class is selected in the table, 
         //  the corresponding values are propogated to the classModGrid and the assignment table
-        classMod.getClassTable().getSelectionModel().selectedItemProperty().addListener(e -> 
-        {
-            ArrayList<Assignment> ai = new ArrayList();
-            //implement function to return an arraylist of assignment items based on the class ID
-            ai.add(new Assignment());
-            assignmentItems = FXCollections.observableList(ai);
-            assignmentTable.setItems(assignmentItems);
-            
-            CategoryWeight cw = new CategoryWeight();
-            //implement function to return an arraylist of assignment items based upon the class ID
-            categoryWeightItems = FXCollections.observableArrayList(cw.getCategoryWeight().entrySet());
-            categoryWeightTable.setItems(categoryWeightItems);
-        });
+//        classMod.getClassTable().getSelectionModel().selectedItemProperty().addListener(e -> 
+//        {
+////            ArrayList<Assignment> ai = new ArrayList();
+////            //implement function to return an arraylist of assignment items based on the class ID
+////            ai.add(new Assignment());
+////            assignmentItems = FXCollections.observableList(ai);
+////            assignmentTable.setItems(assignmentItems);
+//            
+//            //implement function to return an arraylist of assignment items based upon the class ID
+//            categoryWeightItems = FXCollections.observableArrayList(cw.getCategoryWeight().entrySet());
+//            categoryWeightTable.setItems(categoryWeightItems);
+//        });
         
         //sets up modifying the class values
         classMod.SetupClassMod(settings, null, classModBox, classInfo, conn);
         assignmentMod.SetupAssignmentMod(-1, conn, assignmentModBox, assignmentInfo);
         GradingScaleMod.SetupGradingScaleMod(gradingScaleModBox, GradingScaleMod.GRADING_SCALE_INFO_EMPTY);
-        CategoryWeightMod.SetupCategoryWeightMod(categoryWeightTable, categoryWeightModBox, CategoryWeightMod.CATEGORYWEIGHT_INFO_EMPTY);
+        categoryWeightMod.SetupCategoryWeightMod(classMod, conn, categoryWeightModBox, CategoryWeightMod.CATEGORYWEIGHT_INFO_EMPTY);
         
         allModBox.getChildren().addAll(classModBox, gradingScaleModBox, categoryWeightModBox, assignmentModBox);
         modPane.setContent(allModBox);
