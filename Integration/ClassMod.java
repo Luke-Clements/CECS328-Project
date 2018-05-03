@@ -70,13 +70,19 @@ public class ClassMod
         classTable.getColumns().setAll(classIDCol, classNameCol, semesterCol, professorCol, schoolCol, timeCol);
         
         classTable.getSelectionModel().selectedIndexProperty().addListener(e -> {
-            BackCode.Class c = classTable.getSelectionModel().getSelectedItem();
-            String[] classInfo = c.getClassInfoArray(); //ignore errors from this line, as they do not affect the program
-            am.SetupAssignmentTable(conn, assignmentMod, this);
-            SetupClassMod(settings, search, classMod, classInfo, conn);
-            BackCode.GradingScale gs = new BackCode.GradingScale();
-            GradingScaleMod.SetupGradingScaleMod(gradingScaleModBox, gs.getGradingScaleInfoArray());
-            cwm.SetupCategoryWeightTable(conn, this, categoryWeightModBox, c.getCID());
+            //checks to make sure that a row is selected  in the case that a new class was added and the row selected 
+            //  what automatically changed to nothing selected
+            if(classTable.getSelectionModel().getSelectedItem() != null)
+            {
+                BackCode.Class c = classTable.getSelectionModel().getSelectedItem();
+                String[] classInfo = c.getClassInfoArray(); //ignore errors from this line, as they do not affect the program
+                am.SetupAssignmentTable(conn, assignmentMod, this);
+                SetupClassMod(settings, search, classMod, classInfo, conn);
+                int gsID = cwm.getGradingScaleID(conn, c.getCID());
+                String[] gsInfo = GradingScaleMod.getGradingScaleInfo(gsID, conn);
+                GradingScaleMod.SetupGradingScaleMod(gradingScaleModBox, gsInfo);
+                cwm.SetupCategoryWeightTable(conn, this, categoryWeightModBox, c.getCID());
+            }
         });
         
         search.setOnKeyTyped(e ->{
@@ -124,36 +130,66 @@ public class ClassMod
         timeField.setText(classInfo[5]);
         getTime.getChildren().addAll(promptClassTime, timeField);
         
+        Button deleteClass = new Button("Delete Selected Class");
+        deleteClass.setOnMouseClicked(e -> {
+            int classID = classTable.getSelectionModel().getSelectedItem().getCID();
+            deleteClass(classID, conn);
+            classItems = GetClassTableValues(conn);
+            classTable.setItems(classItems);
+        });
         Button saveClass = new Button("Save Class/Grading Scale Changes");
-
         saveClass.setOnMouseClicked(e -> 
         {
+            int gsID = Integer.parseInt(GradingScaleMod.getGradingScaleID(settings, conn));
             String Stmt = "INSERT INTO Class(cID, cName, teacherName, semester, schoolName, cTime, gsID) "+
                 "VALUES(?, ?, ?, ?, ?, ?, ?)";
+            String testStmt = "SELECT cName, teacherName, semester, cTime FROM Class WHERE cID=" 
+                                    + classTable.getSelectionModel().getSelectedItem().getCID();
+            String updateStmt;
            
             String className = nameField.getText();
             String classSemester = semesterField.getText();
             String classSchool = schoolNameField.getText();
             String classTeacherName = professorNameField.getText();
-
+            String classTime = timeField.getText();
+            
+            updateStmt = "UPDATE Class SET schoolName='" + schoolNameField.getText() + "', gsID=" + gsID + 
+                        " WHERE cName='" + className + "' and teacherName='" + classTeacherName + 
+                                "' and semester='" + classSemester + "' and cTime='" + classTime + "'";
+            
             try
             {
-                Time classTime = new Time(Long.parseLong(timeField.getText()));
                 if(className.equals("") || classSemester.equals("") || classSchool.equals("") || classTime.toString().equals(""))
                 {
                     throw new NullPointerException("Cannot have empty fields.");
                 }
-                PreparedStatement pStmt = conn.prepareStatement(Stmt);
-                pStmt.setInt(1, settings.getClassCounter());
-                pStmt.setString(2,className);
-                pStmt.setString(3,classTeacherName);
-                pStmt.setString(4,classSemester);
-                pStmt.setString(5,classSchool);
-                pStmt.setTime(6, classTime);
-                pStmt.setInt(7, Integer.parseInt(GradingScaleMod.getGradingScaleID(settings, conn)));
+                PreparedStatement pStmt = conn.prepareStatement(testStmt);
+                
+                ResultSet rs = pStmt.executeQuery();
+                
+                rs.next();
+                if(rs.getString("cName").equals(className) && rs.getString("semester").equals(classSemester) &&
+                        rs.getString("teacherName").equals(classTeacherName) && rs.getString("cTime").equals(classTime))
+                {
+                    pStmt = conn.prepareStatement(updateStmt);
+                    
+                    pStmt.executeUpdate();
+                }
+                else
+                {
+                    pStmt = conn.prepareStatement(Stmt);
+                    //class doesn't already exist, insert statement
+                    pStmt.setInt(1, settings.getClassCounter());
+                    pStmt.setString(2,className);
+                    pStmt.setString(3,classTeacherName);
+                    pStmt.setString(4,classSemester);
+                    pStmt.setString(5,classSchool);
+                    pStmt.setString(6, classTime);
+                    pStmt.setInt(7, gsID);
 
-                pStmt.executeUpdate();
-                settings.incrementClassCounter(); //increments class counter IF the class was added to the database
+                    pStmt.executeUpdate();
+                    settings.incrementClassCounter(); //increments class counter IF the class was added to the database
+                }
             }
             catch(SQLException se)
             {
@@ -171,7 +207,23 @@ public class ClassMod
             
         });
         
-        classMod.getChildren().addAll(getClassName, getSemesterName, getProfessorName, getSchoolName, getTime, saveClass);
+        classMod.getChildren().addAll(getClassName, getSemesterName, getProfessorName, getSchoolName, getTime, saveClass, deleteClass);
+    }
+    
+    //finished
+    public void deleteClass(int classID, Connection conn)
+    {
+        String stmt = "DELETE FROM Class WHERE cID=" + classID;
+        
+        try
+        {
+            PreparedStatement pStmt = conn.prepareStatement(stmt);
+            pStmt.executeUpdate();
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+        }
     }
     //finished
     public ObservableList<BackCode.Class> GetClassTableValues(Connection conn)
@@ -197,7 +249,7 @@ public class ClassMod
                     c.setTeacher(new SimpleStringProperty(rs.getString("teacherName")));
                     c.setSemester(new SimpleStringProperty(rs.getString("semester")));
                     c.setSchool(new SimpleStringProperty(rs.getString("schoolName")));
-                    c.setTime(new SimpleLongProperty(rs.getTime("cTime").getTime()));
+                    c.setTime(new SimpleStringProperty(rs.getString("cTime")));
                     ac.add(c);
                 }while(rs.next());
             }
