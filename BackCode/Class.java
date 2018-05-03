@@ -23,15 +23,15 @@ public class Class {
     private StringProperty classSemester;
     private StringProperty classSchool;
     private IntegerProperty cID;
-    private LongProperty classTime;
+    private StringProperty classTime;
 
     public Class(){
         className = new SimpleStringProperty("Select");
-        classTeacherName = new SimpleStringProperty("This");
-        classSemester = new SimpleStringProperty("To Add");
+        classTeacherName = new SimpleStringProperty("To Add");
+        classSemester = new SimpleStringProperty("This");
         classSchool = new SimpleStringProperty("New Class");
         cID = new SimpleIntegerProperty(-1);
-        classTime = new SimpleLongProperty(0);
+        classTime = new SimpleStringProperty("00:00AM");
     }
     
     public Class(StringProperty cName, StringProperty cTeacherName, StringProperty cSemester, StringProperty cSchool){
@@ -60,7 +60,7 @@ public class Class {
     public void setID(IntegerProperty id){
         cID = id;
     }
-    public void setTime(LongProperty time){
+    public void setTime(StringProperty time){
         classTime = time;
     }
     
@@ -83,7 +83,7 @@ public class Class {
     public int getCID(){
         return cID.get();
     }
-    public Long getClassTime(){
+    public String getClassTime(){
         return classTime.get();
     }
     public String[] getClassInfoArray(){
@@ -93,7 +93,7 @@ public class Class {
         classInfo[2] = classSemester.get();
         classInfo[3] = classTeacherName.get();
         classInfo[4] = classSchool.get();
-        classInfo[5] = classTime.get()+"";
+        classInfo[5] = classTime.get();
         return classInfo;
     }
 }
