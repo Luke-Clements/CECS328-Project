@@ -41,16 +41,40 @@ public class GradingScale
     }
     
     // Allow the user to customize grade percentages.
-    public GradingScale(FloatProperty a, FloatProperty b, FloatProperty c, FloatProperty d, FloatProperty f)
+    public GradingScale(float a, float b, float c, float d, float f, boolean pf)
     {
-        A = a;
-        B = b;
-        C = c;
-        D = d;
-        F = f;
-        gsPassFail.set(false);
+        A = new SimpleFloatProperty(a);
+        B = new SimpleFloatProperty(b);
+        C = new SimpleFloatProperty(c);
+        D = new SimpleFloatProperty(d);
+        F = new SimpleFloatProperty(f);
+        gsPassFail = new SimpleBooleanProperty(pf);
     }
     
+    public float getA()
+    {
+        return A.get();
+    }
+    public float getB()
+    {
+        return B.get();
+    }
+    public float getC()
+    {
+        return C.get();
+    }
+    public float getD()
+    {
+        return D.get();
+    }
+    public float getF()
+    {
+        return F.get();
+    }
+    public boolean getPassFail()
+    {
+        return gsPassFail.get();
+    }
     // If this is a pass/fail, 
     public GradingScale(FloatProperty c)
     {
