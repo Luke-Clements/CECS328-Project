@@ -56,7 +56,14 @@ public class CategoryWeightMod
         if(!(cm.getClassTable() == null))
         {
             classID = cm.getClassTable().getSelectionModel().getSelectedItem().getCID();
-            gsID = getGradingScaleID(conn, classID);
+            if(classID != -1)
+            {
+                gsID = getGradingScaleID(conn, classID);
+            }
+            else
+            {
+                gsID = -1;
+            }
         }
         else
         {
@@ -194,6 +201,7 @@ public class CategoryWeightMod
     {
         String stmt = "SELECT gsID FROM Class WHERE cID=" + classID;
         
+        System.out.println(classID);
         try
         {
             PreparedStatement ps = conn.prepareStatement(stmt);
