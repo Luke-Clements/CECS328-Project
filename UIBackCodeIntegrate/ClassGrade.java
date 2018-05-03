@@ -23,21 +23,12 @@ public class ClassGrade
     
     public ClassGrade()
     {
-        // Placeholder Values
-        className = new SimpleStringProperty("CECS 343");
-        professorName = new SimpleStringProperty("Sharifian");
-        grade = new SimpleStringProperty("A");
-        semester = new SimpleStringProperty("SPRING18");
-        schoolName = new SimpleStringProperty("CSULB");
-        
-        
-//        className = null;
-//        professorName = null;
-//        grade = null;
-//        semester = null;
-//        schoolName = null;
-//        assignment = new Assignment();
-    }
+        className = null;
+        professorName = null;
+        grade = null;
+        semester = null;
+        schoolName = null;
+   }
     
     //Setters
     public void setName(StringProperty cName){
