@@ -5,6 +5,7 @@
  */
 package Integration;
 
+import BackCode.GradingScale;
 import BackCode.Settings;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -180,5 +181,28 @@ public class GradingScaleMod
             npe.printStackTrace();
             //notification window
         }
+    }
+    
+    public static GradingScale getGradingScale(Connection conn, int gsID)
+    {
+        String stmt = "SELECT * FROM GradingScale WHERE gsID=" + gsID;
+        GradingScale gs;
+        
+        try
+        {
+            PreparedStatement ps = conn.prepareStatement(stmt);
+            ResultSet rs;
+            rs = ps.executeQuery();
+            
+            rs.next();
+            gs = new GradingScale(rs.getFloat("A"), rs.getFloat("B"), rs.getFloat("C"), 
+                    rs.getFloat("D"), rs.getFloat("F"), rs.getBoolean("passFail"));
+            return gs;
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+        }
+        return null;
     }
 }
