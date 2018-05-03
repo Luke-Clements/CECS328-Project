@@ -74,14 +74,14 @@ public class AssignmentMod
             {
                 assignmentInfo = AssignmentMod.ASSIGNMENT_INFO_EMPTY;
             }
-            SetupAssignmentMod(classID, conn, assignmentModBox, assignmentInfo);
+            SetupAssignmentMod(cm, conn, assignmentModBox, assignmentInfo);
         });
 
         assignmentTable.getColumns().setAll(aNameCol, aCategoryCol, aScoreCol, aMaxScoreCol);
         return assignmentTable;
     }
     
-    public void SetupAssignmentMod(int classID, Connection conn, VBox assignmentMod, String[] assignmentInfo)
+    public void SetupAssignmentMod(ClassMod cm, Connection conn, VBox assignmentMod, String[] assignmentInfo)
     {
         assignmentMod.getChildren().clear();
         HBox getAssignmentName = new HBox();
@@ -114,6 +114,7 @@ public class AssignmentMod
             String Stmt = "INSERT INTO Assignment(cID, aName, aCategory, score, maxScore) "+
                 "VALUES(?, ?, ?, ?, ?)";
            
+            int classID = cm.getClassTable().getSelectionModel().getSelectedItem().getCID();
             //perform category check in categoryweight
             String aName = nameField.getText();
             String aCategory = categoryField.getText();
@@ -155,6 +156,7 @@ public class AssignmentMod
         
         Button deleteAssignment = new Button("Delete Assignment");
         deleteAssignment.setOnMouseClicked(e -> {
+            int classID = cm.getClassTable().getSelectionModel().getSelectedItem().getCID();
             deleteAssignment(classID, assignmentTable.getSelectionModel().getSelectedItem(), conn);
             System.out.println(assignmentTable.getSelectionModel().getSelectedItem().getAssignmentName());
             System.out.println(assignmentTable.getSelectionModel().getSelectedItem().getAssignmentCategory());
@@ -205,6 +207,39 @@ public class AssignmentMod
                     a.setCategory(new SimpleStringProperty(rs.getString("aCategory")));
                     a.setScore(new SimpleFloatProperty(rs.getFloat("score")));
                     a.setMaxScore(new SimpleFloatProperty(rs.getFloat("maxScore")));
+                    aa.add(a);
+                }while(rs.next());
+            }
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+        }
+        return FXCollections.observableArrayList(aa);
+    }
+    
+    public static ObservableList<Assignment> GetAssignmentValues(int classID, Connection conn)
+    {
+        String stmt = "SELECT * FROM Assignment WHERE cID=" + classID;
+        ArrayList<Assignment> aa = new ArrayList();
+        
+        try
+        {
+            PreparedStatement ps = conn.prepareStatement(stmt);
+            ResultSet rs = ps.executeQuery();
+            Assignment a;
+
+            if(rs.next())
+            {
+                do
+                {
+                    a = new Assignment();
+                    a.setName(new SimpleStringProperty(rs.getString("aName")));
+                    a.setCategory(new SimpleStringProperty(rs.getString("aCategory")));
+                    a.setScore(new SimpleFloatProperty(rs.getFloat("score")));
+                    a.setMaxScore(new SimpleFloatProperty(rs.getFloat("maxScore")));
+                    System.out.println(a.getAssignmentCategory());
+                    System.out.println(a.getAssignmentName());
                     aa.add(a);
                 }while(rs.next());
             }
