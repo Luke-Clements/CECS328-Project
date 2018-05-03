@@ -198,7 +198,7 @@ public class CategoryWeightMod
         }
     }
     
-    public int getGradingScaleID(Connection conn, int classID)
+    public static int getGradingScaleID(Connection conn, int classID)
     {
         String stmt = "SELECT gsID FROM Class WHERE cID=" + classID;
         
@@ -240,5 +240,31 @@ public class CategoryWeightMod
             
         }
         return FXCollections.observableArrayList(cw.entrySet());
+    }
+    
+    //finished
+    public static HashMap<String, Integer> GetCategoryWeightValues(int gsID, Connection conn)
+    {
+        String stmt = "SELECT * FROM CategoryWeight WHERE gsID=" + gsID;
+        HashMap<String, Integer> cw = new HashMap();
+        
+        try
+        {
+            PreparedStatement ps = conn.prepareStatement(stmt);
+            ResultSet rs = ps.executeQuery();
+            
+            if(rs.next())
+            {
+                do
+                {
+                    cw.put(rs.getString("cwCategory"), rs.getInt("weight"));
+                }while(rs.next());
+            }
+        }
+        catch(SQLException se)
+        {
+            
+        }
+        return cw;
     }
 }
