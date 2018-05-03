@@ -44,7 +44,7 @@ public class ClassMod
         return classTable;
     }
     //finished
-    public void SetupClassTable(AssignmentMod am, Settings settings, Connection conn, VBox classTableSearch, VBox classMod, VBox assignmentMod, VBox gradingScaleModBox, VBox categoryWeightMod, TableView<Map.Entry<String, Integer>> categoryWeightTable)
+    public void SetupClassTable(CategoryWeightMod cwm, AssignmentMod am, Settings settings, Connection conn, VBox classTableSearch, VBox classMod, VBox assignmentMod, VBox gradingScaleModBox, VBox categoryWeightModBox, TableView<Map.Entry<String, Integer>> categoryWeightTable)
     {
         classTable = new TableView<>();
         TextField search = new TextField();
@@ -76,8 +76,7 @@ public class ClassMod
             SetupClassMod(settings, search, classMod, classInfo, conn);
             BackCode.GradingScale gs = new BackCode.GradingScale();
             GradingScaleMod.SetupGradingScaleMod(gradingScaleModBox, gs.getGradingScaleInfoArray());
-            BackCode.CategoryWeight cw = new BackCode.CategoryWeight();
-            categoryWeightTable.setItems(FXCollections.observableArrayList(cw.getCategoryWeight().entrySet()));
+            cwm.SetupCategoryWeightTable(conn, this, categoryWeightModBox, c.getCID());
         });
         
         search.setOnKeyTyped(e ->{
@@ -86,7 +85,7 @@ public class ClassMod
             SetupClassMod(settings, search, classMod, CLASS_INFO_EMPTY, conn);
             am.SetupAssignmentMod(0, conn, assignmentMod, AssignmentMod.ASSIGNMENT_INFO_EMPTY);
             GradingScaleMod.SetupGradingScaleMod(gradingScaleModBox, GradingScaleMod.GRADING_SCALE_INFO_EMPTY);
-            CategoryWeightMod.SetupCategoryWeightMod(categoryWeightTable, categoryWeightMod, CategoryWeightMod.CATEGORYWEIGHT_INFO_EMPTY);
+            cwm.SetupCategoryWeightMod(this, conn, categoryWeightModBox, CategoryWeightMod.CATEGORYWEIGHT_INFO_EMPTY);
         });
 
         classTableSearch.getChildren().addAll(search, classTable);
