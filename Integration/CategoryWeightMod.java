@@ -70,6 +70,7 @@ public class CategoryWeightMod
             classID = -1;
             gsID = -1;
         }
+        System.out.println();
         
         categoryWeightItems = GetCategoryWeightTableValues(gsID, conn);
         
@@ -201,13 +202,12 @@ public class CategoryWeightMod
     {
         String stmt = "SELECT gsID FROM Class WHERE cID=" + classID;
         
-        System.out.println(classID);
         try
         {
             PreparedStatement ps = conn.prepareStatement(stmt);
             ResultSet rs = ps.executeQuery();
             
-            if(rs.next()) System.out.println("heregsID: " + rs.getInt("gsID")); return rs.getInt("gsID");
+            if(rs.next()) return rs.getInt("gsID");
         }
         catch(SQLException se)
         {
