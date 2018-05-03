@@ -49,7 +49,7 @@ public class ClassMod
         classTable = new TableView<>();
         TextField search = new TextField();
         classItems = GetClassTableValues(conn);
-        
+        classItems.add(0, new BackCode.Class());
         classTable.setItems(classItems);
         
         classTable.setItems(SetupClassTableResults(search.getText()));
@@ -93,7 +93,7 @@ public class ClassMod
             classTable.setItems(SetupClassTableResults(search.getText()));
             am.SetupAssignmentTable(conn, assignmentMod, this);
             SetupClassMod(settings, search, classMod, CLASS_INFO_EMPTY, conn);
-            am.SetupAssignmentMod(0, conn, assignmentMod, AssignmentMod.ASSIGNMENT_INFO_EMPTY);
+            am.SetupAssignmentMod(this, conn, assignmentMod, AssignmentMod.ASSIGNMENT_INFO_EMPTY);
             GradingScaleMod.SetupGradingScaleMod(gradingScaleModBox, GradingScaleMod.GRADING_SCALE_INFO_EMPTY);
             cwm.SetupCategoryWeightMod(this, conn, categoryWeightModBox, CategoryWeightMod.CATEGORYWEIGHT_INFO_EMPTY);
         });
@@ -139,6 +139,7 @@ public class ClassMod
             int classID = classTable.getSelectionModel().getSelectedItem().getCID();
             deleteClass(classID, conn);
             classItems = GetClassTableValues(conn);
+            classItems.add(0, new BackCode.Class());
             classTable.setItems(classItems);
         });
         Button saveClass = new Button("Save Class/Grading Scale Changes");
@@ -206,6 +207,7 @@ public class ClassMod
                 //notification window
             }
             classItems = GetClassTableValues(conn);
+            classItems.add(0, new BackCode.Class());
             classTable.setItems(classItems);
             searchField.setText("");
             
@@ -230,7 +232,7 @@ public class ClassMod
         }
     }
     //finished
-    public ObservableList<BackCode.Class> GetClassTableValues(Connection conn)
+    public static ObservableList<BackCode.Class> GetClassTableValues(Connection conn)
     {
         String stmt = "SELECT * FROM Class";
         ArrayList<BackCode.Class> ac = new ArrayList();
@@ -239,9 +241,9 @@ public class ClassMod
         {
             PreparedStatement ps = conn.prepareStatement(stmt);
             ResultSet rs = ps.executeQuery();
-            BackCode.Class c = new BackCode.Class();
-            
-            ac.add(c);
+            BackCode.Class c;
+//            
+//            ac.add(c);
 
             if(rs.next())
             {
