@@ -27,7 +27,7 @@ public class GradingScale
     private FloatProperty D;
     private FloatProperty F;
     private BooleanProperty gsPassFail; //indicates whether the class is a pass/fail assessment
-    private CategoryWeight gsGradingScale;
+//    private CategoryWeight gsGradingScale;
     
     // Default Grading Scale
     public GradingScale()
@@ -58,15 +58,15 @@ public class GradingScale
         gsPassFail.set(true);
     }
     
-    public void setCategoryWeights(CategoryWeight cw)
-    {
-        gsGradingScale = cw;
-    }
-    
-    public CategoryWeight getCategoryWeights()
-    {
-        return gsGradingScale;
-    }
+//    public void setCategoryWeights(CategoryWeight cw)
+//    {
+//        gsGradingScale = cw;
+//    }
+//    
+//    public CategoryWeight getCategoryWeights()
+//    {
+//        return gsGradingScale;
+//    }
     
     public FloatProperty getLowestScore(SimpleStringProperty grd)
     {
