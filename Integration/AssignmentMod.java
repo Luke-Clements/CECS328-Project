@@ -6,15 +6,14 @@
 package Integration;
 
 import BackCode.Assignment;
+import BackCode.Settings;
+import BackCode.Student;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Time;
 import java.util.ArrayList;
 import javafx.beans.property.SimpleFloatProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -39,7 +38,7 @@ public class AssignmentMod
     private TableView<Assignment> assignmentTable = new TableView();
     
     //sets up Assignment table
-    public TableView<Assignment> SetupAssignmentTable(Connection conn, VBox assignmentModBox, ClassMod cm)
+    public TableView<Assignment> SetupAssignmentTable(StudentMod sm, Settings settings, Connection conn, VBox assignmentModBox, ClassMod cm)
     {
         int classID;
         if(!(cm.getClassTable() == null) && !(cm.getClassTable().getSelectionModel().getSelectedItem() == null))
@@ -50,7 +49,7 @@ public class AssignmentMod
         {
             classID = -1;
         }
-        assignmentItems = GetAssignmentTableValues(classID, conn);
+        assignmentItems = GetAssignmentTableValues(settings, sm, classID, conn);
         
         assignmentTable.setItems(assignmentItems);
         
@@ -74,14 +73,14 @@ public class AssignmentMod
             {
                 assignmentInfo = AssignmentMod.ASSIGNMENT_INFO_EMPTY;
             }
-            SetupAssignmentMod(cm, conn, assignmentModBox, assignmentInfo);
+            SetupAssignmentMod(sm, settings, cm, conn, assignmentModBox, assignmentInfo);
         });
 
         assignmentTable.getColumns().setAll(aNameCol, aCategoryCol, aScoreCol, aMaxScoreCol);
         return assignmentTable;
     }
     
-    public void SetupAssignmentMod(ClassMod cm, Connection conn, VBox assignmentMod, String[] assignmentInfo)
+    public void SetupAssignmentMod(StudentMod sm, Settings settings, ClassMod cm, Connection conn, VBox assignmentMod, String[] assignmentInfo)
     {
         assignmentMod.getChildren().clear();
         HBox getAssignmentName = new HBox();
@@ -108,7 +107,16 @@ public class AssignmentMod
         maxScoreField.setText(assignmentInfo[3]);
         getMaxScore.getChildren().addAll(promptMaxScore, maxScoreField);
         
-        Button saveAssignment = new Button("Save Assignment Changes");
+        Button saveAssignment;
+        if(settings.getUserMode().get() == Settings.STUDENT ||
+           (settings.getUserMode().get() == Settings.TEACHER && sm.getTable().getSelectionModel().getSelectedItem() == null))
+        {
+            saveAssignment = new Button("Save Class Assignment");
+        }
+        else
+        {
+            saveAssignment = new Button("Save Student Assignment");
+        }
         saveAssignment.setOnMouseClicked(e -> 
         {
             Assignment a = new Assignment();
@@ -116,39 +124,80 @@ public class AssignmentMod
             a.setCategory(new SimpleStringProperty(categoryField.getText()));
             a.setMaxScore(new SimpleFloatProperty(Float.parseFloat(maxScoreField.getText())));
             a.setScore(new SimpleFloatProperty(Float.parseFloat(scoreField.getText())));
-                   
+
             int classID = cm.getClassTable().getSelectionModel().getSelectedItem().getCID();
             if(CategoryWeightMod.isValidCategory(a.getAssignmentCategory(), conn, classID))
             {
-                insertUpdateAssignment(classID, a, conn);
+                insertUpdateAssignment(settings, sm, classID, a, conn);
             }
         });
         
-        Button deleteAssignment = new Button("Delete Assignment");
+        Button deleteAssignment;
+        if(settings.getUserMode().get() == Settings.STUDENT ||
+           (settings.getUserMode().get() == Settings.TEACHER && sm.getTable().getSelectionModel().getSelectedItem() == null))
+        {
+            deleteAssignment = new Button("Delete Class Assignment");
+        }
+        else
+        {
+            deleteAssignment = new Button("Delete Student Assignment");
+        }
         deleteAssignment.setOnMouseClicked(e -> {
             int classID = cm.getClassTable().getSelectionModel().getSelectedItem().getCID();
-            deleteAssignment(classID, assignmentTable.getSelectionModel().getSelectedItem(), conn);
-            assignmentItems = GetAssignmentTableValues(classID, conn);
+            deleteAssignment(settings, sm, classID, assignmentTable.getSelectionModel().getSelectedItem(), conn);
+            assignmentItems = GetAssignmentTableValues(settings, sm, classID, conn);
             assignmentTable.setItems(assignmentItems);
         });
         
         assignmentMod.getChildren().addAll(getAssignmentName, getCategory, getScore, getMaxScore, saveAssignment, deleteAssignment);
     }
     //finished
-    public void insertUpdateAssignment(int classID, Assignment a, Connection conn)
+    public void insertUpdateAssignment(Settings settings, StudentMod sm, int classID, Assignment a, Connection conn)
     {
+        int sID;
+        Student s = null;
         String aName = a.getAssignmentName();
         String aCategory = a.getAssignmentCategory();
         float score = a.getAssignmentScore();
         float maxScore = a.getAssignmentMaxScore();
+        String stmt;
+        String updateStmt;
+        String testStmt;
+        if(sm.getTable() != null)
+        {
+            s = sm.getTable().getSelectionModel().getSelectedItem();
+        }
         
-        String Stmt = "INSERT INTO Assignment(cID, aName, aCategory, score, maxScore) "+
-                "VALUES(?, ?, ?, ?, ?)";
-        String updateStmt = "UPDATE Assignment SET score=" + score + ", maxScore=" + maxScore + 
-                        " WHERE cID=" + classID + " and aName='" + aName + 
-                                "' and aCategory='" + aCategory + "'";
-        String testStmt = "SELECT cID, aName, aCategory FROM Assignment WHERE cID=" + classID + " and aName='" +
+        if(s == null)
+        {
+            sID = -1;
+        }
+        else
+        {
+            sID = s.getSID();
+        }
+        if(settings.getUserMode().get() == Settings.STUDENT)
+        {
+            //for inserting values into assignment table when the student ID is unknown (or when program is in student mode)
+            stmt = "INSERT INTO Assignment(cID, aName, aCategory, score, maxScore) "+
+                    "VALUES(?, ?, ?, ?, ?)";
+            updateStmt = "UPDATE Assignment SET score=" + score + ", maxScore=" + maxScore + 
+                            " WHERE cID=" + classID + " and aName='" + aName + 
+                                    "' and aCategory='" + aCategory + "'";
+            testStmt = "SELECT cID, aName, aCategory FROM Assignment WHERE cID=" + classID + " and aName='" +
                                         aName + "' and aCategory='" + aCategory + "'";
+        }
+        else
+        {
+            //for inserting values into assignment table when studeitn ID is known in teacher mode
+            stmt = "INSERT INTO Assignment(cID, aName, aCategory, score, maxScore, sID) "+
+                    "VALUES(?, ?, ?, ?, ?, ?)";
+            updateStmt = "UPDATE Assignment SET score=" + score + ", maxScore=" + maxScore +
+                            " WHERE cID=" + classID + " and aName='" + aName + 
+                                    "' and aCategory='" + aCategory + "' and sID=" + s.getSID();
+            testStmt = "SELECT cID, sID, aName, aCategory FROM Assignment WHERE cID=" + classID + " and aName='" +
+                                aName + "' and aCategory='" + aCategory + "' and sID=" + s.getSID();
+        }
 
         try
         {
@@ -159,7 +208,8 @@ public class AssignmentMod
             PreparedStatement pStmt = conn.prepareStatement(testStmt);
             ResultSet rs = pStmt.executeQuery();
             
-            if(rs.next() && rs.getString("aName").equals(aName) && rs.getString("aCategory").equals(aCategory) && rs.getInt("cID") == classID)
+            if(rs.next() && rs.getString("aName").equals(aName) && rs.getString("aCategory").equals(aCategory) &&
+                    rs.getInt("cID") == classID && rs.getInt("sID") == sID)
             {
                 pStmt = conn.prepareStatement(updateStmt);
                     
@@ -167,12 +217,16 @@ public class AssignmentMod
             }
             else
             {
-                pStmt = conn.prepareStatement(Stmt);
+                pStmt = conn.prepareStatement(stmt);
                 pStmt.setInt(1,classID);
                 pStmt.setString(2,aName);
                 pStmt.setString(3,aCategory);
                 pStmt.setFloat(4,score);
                 pStmt.setFloat(5,maxScore);
+                if(settings.getUserMode().get() != Settings.STUDENT && s != null)
+                {
+                    pStmt.setInt(6, sID);
+                }
 
                 pStmt.executeUpdate();
             }
@@ -187,15 +241,41 @@ public class AssignmentMod
             npe.printStackTrace();
             //notification window
         }
-        assignmentItems = GetAssignmentTableValues(classID, conn);
+        assignmentItems = GetAssignmentTableValues(settings, sm, classID, conn);
         assignmentTable.setItems(assignmentItems);     
     }
     //finished
-    public static void deleteAssignment(int classID, Assignment a, Connection conn)
+    public static void deleteAssignment(Settings settings, StudentMod sm, int classID, Assignment a, Connection conn)
     {
-        String stmt = "DELETE FROM Assignment WHERE cID=" + classID + 
+        int sID;
+        Student s = null;
+        if(sm.getTable() != null)
+        {
+            s = sm.getTable().getSelectionModel().getSelectedItem();
+        }
+        if(settings.getUserMode().get() == Settings.STUDENT || s == null)
+        {
+            sID = -1;
+        }
+        else
+        {
+            sID = s.getSID();
+        }
+        String stmt;
+        
+        if(settings.getUserMode().get() == Settings.STUDENT || s == null)
+        {
+            stmt = "DELETE FROM Assignment WHERE cID=" + classID + 
                                             " and aName='" + a.getAssignmentName() +
                                             "' and aCategory='" + a.getAssignmentCategory() + "'";
+        }
+        else
+        {
+            stmt = "DELETE FROM Assignment WHERE cID=" + classID + 
+                                            " and sID=" + sID +
+                                            " and aName='" + a.getAssignmentName() +
+                                            "' and aCategory='" + a.getAssignmentCategory() + "'";
+        }
         
         try
         {
@@ -208,42 +288,44 @@ public class AssignmentMod
         }
     }
     //finished
-    public static ObservableList<Assignment> GetAssignmentTableValues(int classID, Connection conn)
+    public static ObservableList<Assignment> GetAssignmentTableValues(Settings settings, StudentMod sm, int classID, Connection conn)
     {
-        String stmt = "SELECT * FROM Assignment WHERE cID=" + classID;
         ArrayList<Assignment> aa = new ArrayList();
         
-        try
-        {
-            PreparedStatement ps = conn.prepareStatement(stmt);
-            ResultSet rs = ps.executeQuery();
-            Assignment a = new Assignment();
-            
-            aa.add(a);
+        Assignment a = new Assignment();
 
-            if(rs.next())
-            {
-                do
-                {
-                    a = new Assignment();
-                    a.setName(new SimpleStringProperty(rs.getString("aName")));
-                    a.setCategory(new SimpleStringProperty(rs.getString("aCategory")));
-                    a.setScore(new SimpleFloatProperty(rs.getFloat("score")));
-                    a.setMaxScore(new SimpleFloatProperty(rs.getFloat("maxScore")));
-                    aa.add(a);
-                }while(rs.next());
-            }
-        }
-        catch(SQLException se)
-        {
-            se.printStackTrace();
-        }
+        aa.add(a);
+
+        aa.addAll(GetAssignmentValues(settings, sm, classID, conn));
         return FXCollections.observableArrayList(aa);
     }
     //finished
-    public static ObservableList<Assignment> GetAssignmentValues(int classID, Connection conn)
+    public static ObservableList<Assignment> GetAssignmentValues(Settings settings, StudentMod sm, int classID, Connection conn)
     {
-        String stmt = "SELECT * FROM Assignment WHERE cID=" + classID;
+        int sID;
+        Student s = null;
+        String stmt;
+        if(sm != null && sm.getTable() != null)
+        {
+            s = sm.getTable().getSelectionModel().getSelectedItem();
+        }
+        if(s == null)
+        {
+            sID = -1;
+        }
+        else
+        {
+            sID = s.getSID();
+        }
+        if(settings.getUserMode().get() == Settings.STUDENT)
+        {
+            stmt = "SELECT * FROM Assignment WHERE cID=" + classID;
+        }
+        else
+        {
+            stmt = "SELECT * FROM Assignment WHERE cID=" + classID +
+                                                " and sID=" + sID;
+        }
         ArrayList<Assignment> aa = new ArrayList();
         
         try
