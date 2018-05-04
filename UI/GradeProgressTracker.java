@@ -23,6 +23,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -57,6 +59,7 @@ public class GradeProgressTracker extends Application
     //  same folder to the .exe file for this program as it is static
     private final String filePathToSettingsInfo = System.getProperty("user.dir") + "/Settings.json";
     private Settings settings;
+    private LongProperty userMode;
     private ObservableList<ClassGrade> classGradeItem;
     private ObservableList<BackCode.Class> classItems;
     private ObservableList<Assignment> assignmentItems;
@@ -81,16 +84,18 @@ public class GradeProgressTracker extends Application
         
         InitialStartup(primaryStage);
         
-        //setting up the change between modes
-        settings.getUserMode().addListener(e -> {
-            System.out.println("howintheworld");
-        });
+        userMode = settings.getUserMode();
         
         //Setup settings tab
-        SettingsInfo.SetupSettingsMod(settingsModTab, settings, db, conn, filePathToSettingsInfo);
+        SettingsInfo.SetupSettingsMod(userMode, settingsModTab, settings, db, conn, filePathToSettingsInfo);
         settingsTab.setContent(settingsModTab);
         
-        ContinuedStartup(mainPane, settingsTab, classModificationsTab, searchTab, searchPane, searchTable, searchGradeInfo, classAssignmentModificationsPane);
+        userMode.addListener(e -> {
+            SetupTabs(settings, mainPane, settingsTab, classModificationsTab, searchTab, searchPane, searchTable, searchGradeInfo, classAssignmentModificationsPane);
+        });
+        //setting up the change between modes
+        
+        SetupTabs(settings, mainPane, settingsTab, classModificationsTab, searchTab, searchPane, searchTable, searchGradeInfo, classAssignmentModificationsPane);
         Scene scene = new Scene(mainPane, 1250, 425);
         
         primaryStage.sizeToScene();
@@ -110,8 +115,20 @@ public class GradeProgressTracker extends Application
         launch(args);
     }
 
-    public void ContinuedStartup(TabPane mainPane, Tab settingsTab, Tab classModificationsTab, Tab searchTab, HBox searchPane, VBox searchTable, VBox searchGradeInfo, HBox classAssignmentModificationsPane)
+    public void SetupTabs(Settings settings, TabPane mainPane, Tab settingsTab, Tab classModificationsTab, Tab searchTab, 
+            HBox searchPane, VBox searchTable, VBox searchGradeInfo, HBox classAssignmentModificationsPane)
     {
+        mainPane.getTabs().clear();
+        classModificationsTab.setContent(null);
+        searchTab.setContent(null);
+        searchPane.getChildren().clear();
+        searchTable.getChildren().clear();
+        searchGradeInfo.getChildren().clear();
+        classAssignmentModificationsPane.getChildren().clear();
+        
+        //resets the connection so it is to the correct database
+        conn = SettingsInfo.SetSelectedDatabaseAndGetConnection(settings, db);
+        
         search = new Search();
         
         //Setup search tab
@@ -138,7 +155,7 @@ public class GradeProgressTracker extends Application
         });
     }
     
-    //incomplete
+    //complete
     public void InitialStartup(Stage primaryStage)
     {
         File settingsFile = new File(filePathToSettingsInfo);
@@ -164,8 +181,6 @@ public class GradeProgressTracker extends Application
                 SettingsInfo.SaveSettingsFile(settings, filePathToSettingsInfo);
             }
         }
-        
-        conn = SettingsInfo.SetSelectedDatabaseAndGetConnection(settings, db);
     }
    
     public void SetupClassAssignmentModificationsPane(HBox classAssignmentModificationsPane)
