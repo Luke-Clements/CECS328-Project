@@ -224,7 +224,7 @@ public class CategoryWeightMod
             PreparedStatement ps = conn.prepareStatement(stmt);
             ResultSet rs = ps.executeQuery();
             
-            if(rs.next()) System.out.println(rs.getInt("gsID")); return rs.getInt("gsID");
+            if(rs.next()) return rs.getInt("gsID");
         }
         catch(SQLException se)
         {
