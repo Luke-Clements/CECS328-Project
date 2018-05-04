@@ -185,7 +185,7 @@ public class ClassMod
                 {
                     pStmt = conn.prepareStatement(Stmt);
                     //class doesn't already exist, insert statement
-                    pStmt.setInt(1, settings.getClassCounter());
+                    pStmt.setInt(1, settings.getClassCounter(settings.getUserMode().get()));
                     pStmt.setString(2,className);
                     pStmt.setString(3,classTeacherName);
                     pStmt.setString(4,classSemester);
@@ -194,7 +194,7 @@ public class ClassMod
                     pStmt.setInt(7, gsID);
 
                     pStmt.executeUpdate();
-                    settings.incrementClassCounter(); //increments class counter IF the class was added to the database
+                    settings.incrementClassCounter(settings.getUserMode().get()); //increments class counter IF the class was added to the database
                 }
             }
             catch(SQLException se)
