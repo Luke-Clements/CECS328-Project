@@ -132,6 +132,7 @@ public class GradingScaleMod
             if(se.getMessage().equals("Invalid cursor state - no current row."))
             {
                 InsertNewGradingScale(settings, conn);
+                System.out.println("New: ");
                 return getGradingScaleID(settings, conn);
             }
 //            se.printStackTrace();
@@ -159,7 +160,7 @@ public class GradingScaleMod
                 throw new NullPointerException("Cannot have empty fields.");
             }
             PreparedStatement pStmt = conn.prepareStatement(Stmt);
-            pStmt.setInt(1, settings.getGradingScaleCounter());
+            pStmt.setInt(1, settings.getGradingScaleCounter(settings.getUserMode().get()));
             pStmt.setFloat(2,a);
             pStmt.setFloat(3,b);
             pStmt.setFloat(4,c);
@@ -168,8 +169,7 @@ public class GradingScaleMod
             pStmt.setBoolean(7, passFail);
 
             pStmt.executeUpdate();
-            System.out.println("executed update");
-            settings.incrementGradingScaleCounter();
+            settings.incrementGradingScaleCounter(settings.getUserMode().get());
         }
         catch(SQLException se)
         {
