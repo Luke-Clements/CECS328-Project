@@ -42,7 +42,7 @@ public class AssignmentMod
     public TableView<Assignment> SetupAssignmentTable(Connection conn, VBox assignmentModBox, ClassMod cm)
     {
         int classID;
-        if(!(cm.getClassTable() == null))
+        if(!(cm.getClassTable() == null) && !(cm.getClassTable().getSelectionModel().getSelectedItem() == null))
         {
             classID = cm.getClassTable().getSelectionModel().getSelectedItem().getCID();
         }
