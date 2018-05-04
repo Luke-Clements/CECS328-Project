@@ -105,13 +105,19 @@ public class CategoryWeightMod
         addCategoryWeight.setOnMouseClicked(e -> {
             if(!weightField.getText().equals("") && !categoryField.getText().equals(""))
             {
-                categoryWeightItems.add(new SimpleEntry(categoryField.getText(), Integer.parseInt(weightField.getText())));
-                categoryWeightTable.setItems(categoryWeightItems);
+                try
+                {
+                    categoryWeightItems.add(new SimpleEntry(categoryField.getText(), Integer.parseInt(weightField.getText())));
+                    categoryWeightTable.setItems(categoryWeightItems);
+                }
+                catch(NumberFormatException nfe)
+                {
+                    SettingsInfo.Notification("The id field must contain an integer.");
+                }
             }
             else
             {
-                System.out.println("invalid values");
-                //error window
+                SettingsInfo.Notification("The category or weight entry fields are empty.");
             }
         });
         Button removeCategoryWeight = new Button("Remove Category Weight");
@@ -129,8 +135,7 @@ public class CategoryWeightMod
             }
             else
             {
-                System.out.println("invalid weight sum");
-                //Notification window
+                SettingsInfo.Notification("The weights of the categories do not add up to 100.");
             }
         });
         categoryWeightMod.getChildren().addAll(categoryWeightTable, getCategory, getWeight, addCategoryWeight, removeCategoryWeight, saveCategoryWeight);
@@ -160,6 +165,7 @@ public class CategoryWeightMod
         {
             se.printStackTrace();
         }
+        SettingsInfo.Notification("The specified category does not exist in the database.");
         return false;
                 
     }
@@ -190,6 +196,7 @@ public class CategoryWeightMod
         {
             se.printStackTrace();
         }
+        SettingsInfo.Notification("The category weights have been added to the database.");
     }
     //finished
     private boolean weightSumValid()
