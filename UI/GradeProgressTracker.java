@@ -13,6 +13,7 @@ import Integration.ClassMod;
 import Integration.GradingScaleMod;
 import Integration.Search;
 import Integration.SettingsInfo;
+import Integration.StudentMod;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -53,6 +54,7 @@ public class GradeProgressTracker extends Application
     private ClassMod classMod;
     private AssignmentMod assignmentMod;
     private CategoryWeightMod categoryWeightMod;
+    private StudentMod studentMod;
     private Search search;
 
     //this filepath contains info for startup of the program. This must be in the 
@@ -130,19 +132,20 @@ public class GradeProgressTracker extends Application
         conn = SettingsInfo.SetSelectedDatabaseAndGetConnection(settings, db);
         
         search = new Search();
-        
-        //Setup search tab
-        // Name(of class), semester(date), grade, GPA by semester, Professor, SchoolName
-        search.SetupSearchTable(conn, searchTable, searchGradeInfo);
-        search.SetupGradeInfo(conn, search, searchGradeInfo);
-        
         classMod = new ClassMod();
         assignmentMod = new AssignmentMod();
         categoryWeightMod = new CategoryWeightMod();
+        studentMod = new StudentMod();
+        
         //Setup class, assignment, category weight, grading scale modifications tab
         // name(of class), semester, grade, professor, schoolName
         SetupClassAssignmentModificationsPane(classAssignmentModificationsPane);
         //end classInputPane setup
+        
+        //Setup search tab
+        // Name(of class), semester(date), grade, GPA by semester, Professor, SchoolName
+        search.SetupSearchTable(settings, studentMod, conn, searchTable, searchGradeInfo);
+        search.SetupGradeInfo(settings, studentMod, conn, search, searchGradeInfo);
         
         classModificationsTab.setContent(classAssignmentModificationsPane);
         searchTab.setContent(searchPane);
@@ -151,7 +154,7 @@ public class GradeProgressTracker extends Application
         mainPane.getTabs().addAll(classModificationsTab, searchTab, settingsTab);
         mainPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
         mainPane.selectionModelProperty().getValue().selectedItemProperty().addListener(e -> {
-            search.SetupSearchTable(conn, searchTable, searchGradeInfo);
+            search.SetupSearchTable(settings, studentMod, conn, searchTable, searchGradeInfo);
         });
     }
     
@@ -191,6 +194,7 @@ public class GradeProgressTracker extends Application
         VBox allModBox = new VBox();
         VBox gradingScaleModBox = new VBox();
         VBox categoryWeightModBox = new VBox();
+        VBox studentModBox = new VBox();
         ScrollPane modPane = new ScrollPane();
         
         classMod.SetupClassMod(settings, null, classModBox, classInfo, conn);
@@ -198,11 +202,16 @@ public class GradeProgressTracker extends Application
 
         TableView<Map.Entry<String, Integer>> categoryWeightTable;
         TableView<Assignment> assignmentTable;
+        TableView<Student> studentTable = null;
 
-            assignmentTable = assignmentMod.SetupAssignmentTable(conn, assignmentModBox, classMod);
-            categoryWeightTable = categoryWeightMod.SetupCategoryWeightTable(conn, classMod, categoryWeightModBox, 0);
+        if(userMode.get() == Settings.TEACHER)
+        {
+            studentTable = studentMod.SetupStudentTable(settings, conn, studentModBox, assignmentModBox, classMod, assignmentMod);
+        }
+        assignmentTable = assignmentMod.SetupAssignmentTable(studentMod, settings, conn, assignmentModBox, classMod);
+        categoryWeightTable = categoryWeightMod.SetupCategoryWeightTable(conn, classMod, categoryWeightModBox, 0);
 
-        classMod.SetupClassTable(categoryWeightMod, assignmentMod, settings, conn, classTableSearch, classModBox, assignmentModBox, gradingScaleModBox, categoryWeightModBox, categoryWeightTable);
+        classMod.SetupClassTable(studentMod, categoryWeightMod, assignmentMod, settings, conn, classTableSearch, classModBox, assignmentModBox, gradingScaleModBox, studentModBox, categoryWeightModBox, categoryWeightTable);
         //every time a different class is selected in the table, 
         //  the corresponding values are propogated to the classModGrid and the assignment table
 //        classMod.getClassTable().getSelectionModel().selectedItemProperty().addListener(e -> 
@@ -220,12 +229,20 @@ public class GradeProgressTracker extends Application
         
         //sets up modifying the class values
         classMod.SetupClassMod(settings, null, classModBox, classInfo, conn);
-        assignmentMod.SetupAssignmentMod(classMod, conn, assignmentModBox, assignmentInfo);
+        assignmentMod.SetupAssignmentMod(studentMod, settings, classMod, conn, assignmentModBox, assignmentInfo);
         GradingScaleMod.SetupGradingScaleMod(gradingScaleModBox, GradingScaleMod.GRADING_SCALE_INFO_EMPTY);
         categoryWeightMod.SetupCategoryWeightMod(classMod, conn, categoryWeightModBox, CategoryWeightMod.CATEGORYWEIGHT_INFO_EMPTY);
+        studentMod.SetupStudentMod(classMod, conn, studentModBox, StudentMod.STUDENT_INFO_EMPTY);
         
-        allModBox.getChildren().addAll(classModBox, gradingScaleModBox, categoryWeightModBox, assignmentModBox);
+        allModBox.getChildren().addAll(classModBox, gradingScaleModBox, categoryWeightModBox, studentModBox, assignmentModBox);
         modPane.setContent(allModBox);
-        classAssignmentModificationsPane.getChildren().addAll(classTableSearch, assignmentTable, modPane);
+        if(userMode.get() == Settings.TEACHER)
+        {
+            classAssignmentModificationsPane.getChildren().addAll(classTableSearch, studentTable, assignmentTable, modPane);
+        }
+        else
+        {
+            classAssignmentModificationsPane.getChildren().addAll(classTableSearch, assignmentTable, modPane);
+        }
     }
 }
