@@ -114,11 +114,9 @@ public class Database
         
         try
         {
-            System.out.println(filepath);
             Object object = parser.parse(new FileReader(filepath));
             JSONObject jsonObj = (JSONObject)object;
 
-            System.out.println("afterparse");
             JSONArray SQLTableDDL = (JSONArray)jsonObj.get("SQLTableDDL");
             SQLTableDDLStrings = new String[SQLTableDDL.size()];
             for (int i = 0;i < SQLTableDDL.size();i++) 
