@@ -1,9 +1,9 @@
 package BackCode;
 
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.FloatProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleFloatProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 
@@ -21,53 +21,53 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class GradingScale 
 {
-    private FloatProperty A; // represents the lowest score to obtain that grade.
-    private FloatProperty B;
-    private FloatProperty C;
-    private FloatProperty D;
-    private FloatProperty F;
+    private IntegerProperty A; // represents the lowest score to obtain that grade.
+    private IntegerProperty B;
+    private IntegerProperty C;
+    private IntegerProperty D;
+    private IntegerProperty F;
     private BooleanProperty gsPassFail; //indicates whether the class is a pass/fail assessment
 //    private CategoryWeight gsGradingScale;
     
     // Default Grading Scale
     public GradingScale()
     {
-        A = new SimpleFloatProperty(90);
-        B = new SimpleFloatProperty(80);
-        C = new SimpleFloatProperty(70);
-        D = new SimpleFloatProperty(60);
-        F = new SimpleFloatProperty(50);
+        A = new SimpleIntegerProperty(90);
+        B = new SimpleIntegerProperty(80);
+        C = new SimpleIntegerProperty(70);
+        D = new SimpleIntegerProperty(60);
+        F = new SimpleIntegerProperty(50);
         gsPassFail = new SimpleBooleanProperty(false);
     }
     
     // Allow the user to customize grade percentages.
-    public GradingScale(float a, float b, float c, float d, float f, boolean pf)
+    public GradingScale(int a, int b, int c, int d, int f, boolean pf)
     {
-        A = new SimpleFloatProperty(a);
-        B = new SimpleFloatProperty(b);
-        C = new SimpleFloatProperty(c);
-        D = new SimpleFloatProperty(d);
-        F = new SimpleFloatProperty(f);
+        A = new SimpleIntegerProperty(a);
+        B = new SimpleIntegerProperty(b);
+        C = new SimpleIntegerProperty(c);
+        D = new SimpleIntegerProperty(d);
+        F = new SimpleIntegerProperty(f);
         gsPassFail = new SimpleBooleanProperty(pf);
     }
     
-    public float getA()
+    public int getA()
     {
         return A.get();
     }
-    public float getB()
+    public int getB()
     {
         return B.get();
     }
-    public float getC()
+    public int getC()
     {
         return C.get();
     }
-    public float getD()
+    public int getD()
     {
         return D.get();
     }
-    public float getF()
+    public int getF()
     {
         return F.get();
     }
@@ -76,7 +76,7 @@ public class GradingScale
         return gsPassFail.get();
     }
     // If this is a pass/fail, 
-    public GradingScale(FloatProperty c)
+    public GradingScale(IntegerProperty c)
     {
         C = c;
         gsPassFail.set(true);
@@ -92,7 +92,7 @@ public class GradingScale
 //        return gsGradingScale;
 //    }
     
-    public FloatProperty getLowestScore(SimpleStringProperty grd)
+    public IntegerProperty getLowestScore(SimpleStringProperty grd)
     {
         
         char grade = grd.get().charAt(0);
