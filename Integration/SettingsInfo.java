@@ -84,6 +84,10 @@ public final class SettingsInfo
                 settings.setUserMode(modeBox.getSelectionModel().selectedIndexProperty().intValue());
                 SaveSettingsFile(settings, filepathToSettingsFile);
                 mode.setValue(settings.getUserMode().get());
+                if(mode.get() != settings.getUserMode().get())
+                {
+                    System.out.println("Mode switch failed");
+                }
             }
         });
 
