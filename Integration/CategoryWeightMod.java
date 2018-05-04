@@ -260,9 +260,9 @@ public class CategoryWeightMod
     }
     
     //finished
-    public static HashMap<String, Integer> GetCategoryWeightValues(int gsID, Connection conn)
+    public static HashMap<String, Integer> GetCategoryWeightValues(int classID, Connection conn)
     {
-        String stmt = "SELECT * FROM CategoryWeight WHERE gsID=" + gsID;
+        String stmt = "SELECT * FROM CategoryWeight WHERE classID=" + classID;
         HashMap<String, Integer> cw = new HashMap();
         
         try
