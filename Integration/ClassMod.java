@@ -79,9 +79,13 @@ public class ClassMod
                 String[] classInfo = c.getClassInfoArray(); //ignore errors from this line, as they do not affect the program
                 am.SetupAssignmentTable(conn, assignmentMod, this);
                 SetupClassMod(settings, search, classMod, classInfo, conn);
-                int gsID = cwm.getGradingScaleID(conn, c.getCID());
-                String[] gsInfo = GradingScaleMod.getGradingScaleInfo(gsID, conn);
-                if(gsInfo == null)
+                String[] gsInfo;
+                if(c.getCID() != -1)
+                {
+                    int gsID = cwm.getGradingScaleID(conn, c.getCID());
+                    gsInfo = GradingScaleMod.getGradingScaleInfo(gsID, conn);
+                }
+                else
                 {
                     GradingScale gs = new GradingScale();
                     gsInfo = gs.getGradingScaleInfoArray();
