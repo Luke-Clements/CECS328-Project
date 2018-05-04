@@ -12,6 +12,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
+import javafx.beans.property.LongProperty;
 import javafx.collections.FXCollections;
 import javafx.event.Event;
 import javafx.scene.Scene;
@@ -37,6 +38,7 @@ public final class SettingsInfo
 {
     private static final String[] MODE_SETTINGS = {"Teacher", "Student"};
     
+   //finished
     public static Connection SetSelectedDatabaseAndGetConnection(Settings settings, Database db)
     {
         Connection connect;
@@ -63,7 +65,8 @@ public final class SettingsInfo
         }
         return connect;
     }
-    public static void SetupSettingsMod(HBox settingsMod, Settings settings, 
+    //finished
+    public static void SetupSettingsMod(LongProperty mode, HBox settingsMod, Settings settings, 
                 Database db, Connection conn, String filepathToSettingsFile)
     {
         Button setUsernameID = new Button("Set Username and ID");
@@ -80,6 +83,7 @@ public final class SettingsInfo
             {
                 settings.setUserMode(modeBox.getSelectionModel().selectedIndexProperty().intValue());
                 SaveSettingsFile(settings, filepathToSettingsFile);
+                mode.setValue(settings.getUserMode().get());
             }
         });
 
@@ -94,11 +98,10 @@ public final class SettingsInfo
         
         settingsMod.getChildren().addAll(setUsernameID, modeBox, dbFilepath, setDbFilepath);
     }
-    
+    //finished
     public static void GetNewDatabaseFilepath(Settings settings)
     {
         Stage primaryStage = new Stage();
-        //setup action on save button click
         DirectoryChooser dirChooser = new DirectoryChooser();
         settings.setFilePathToDataBaseFiles(dirChooser.showDialog(primaryStage).getAbsolutePath());
     }
