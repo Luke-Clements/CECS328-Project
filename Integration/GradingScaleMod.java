@@ -195,8 +195,8 @@ public class GradingScaleMod
             rs = ps.executeQuery();
             
             rs.next();
-            gs = new GradingScale(rs.getFloat("A"), rs.getFloat("B"), rs.getFloat("C"), 
-                    rs.getFloat("D"), rs.getFloat("F"), rs.getBoolean("passFail"));
+            gs = new GradingScale(rs.getInt("A"), rs.getInt("B"), rs.getInt("C"), 
+                    rs.getInt("D"), rs.getInt("F"), rs.getBoolean("passFail"));
             return gs;
         }
         catch(SQLException se)
