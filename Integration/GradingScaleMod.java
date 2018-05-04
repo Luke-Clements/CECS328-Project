@@ -113,7 +113,7 @@ public class GradingScaleMod
                                                      " and F= " + Float.parseFloat(fText.getText()) +
                                                      " and passFail = " + passFailBox.getSelectionModel().getSelectedItem();
         
-        ResultSet rs = null;
+        ResultSet rs;
         
         try
         {
