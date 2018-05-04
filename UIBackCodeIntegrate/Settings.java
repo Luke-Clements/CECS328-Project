@@ -84,15 +84,15 @@ public class Settings
         return filePathToDataBaseFiles;
     }
     
-    public long getUserMode()
+    public LongProperty getUserMode()
     {
         if(this.userMode.get() == STUDENT)
         {
-            return STUDENT;
+            return new SimpleLongProperty(STUDENT);
         }
         else
         {
-            return TEACHER;
+            return new SimpleLongProperty(TEACHER);
         }
     }
     
@@ -144,7 +144,7 @@ public class Settings
         
         settings.setFilePathToDataBaseFiles(set.getFilePathToDataBaseFiles().get());
         settings.setIDNumber(set.getIDNumber().get());
-        settings.setUserMode(set.getUserMode());
+        settings.setUserMode(set.getUserMode().get());
         settings.setUserName(set.getUserName().get());
         return settings;
     }
