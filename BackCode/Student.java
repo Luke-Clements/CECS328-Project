@@ -2,6 +2,8 @@ package BackCode;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 /*
@@ -20,9 +22,9 @@ public class Student {
     private IntegerProperty sID;
     
     public Student(){
-        sName = null;
-        sEmail = null;
-        sID = null;
+        sName = new SimpleStringProperty("Select to add");
+        sEmail = new SimpleStringProperty("");
+        sID = new SimpleIntegerProperty(-1);
     }
     
     //Setters
@@ -39,16 +41,16 @@ public class Student {
     }
     
     //Getters
-    public StringProperty getSName(){//Name
-       return sName;
+    public String getSName(){//Name
+       return sName.get();
     }
     
-    public IntegerProperty getSID(){//ID Number
-       return sID;
+    public int getSID(){//ID Number
+       return sID.get();
     }
     
-    public StringProperty getSEmail(){//Teacher
-       return sEmail;
+    public String getSEmail(){//Teacher
+       return sEmail.get();
     }
     
     public String[] getStudentInfoArray()
