@@ -141,7 +141,35 @@ public class CategoryWeightMod
         });
         categoryWeightMod.getChildren().addAll(categoryWeightTable, getCategory, getWeight, addCategoryWeight, removeCategoryWeight, saveCategoryWeight);
     }
-    
+    //finished
+    public static boolean isValidCategory(String cat, Connection conn, int classID)
+    {
+        String stmt = "SELECT cwCategory FROM CategoryWeight WHERE classID=" + classID;
+        
+        try
+        {
+            PreparedStatement ps = conn.prepareStatement(stmt);
+            ResultSet rs = ps.executeQuery();
+            
+            if(rs.next())
+            {
+                do
+                {
+                    if(rs.getString("cwCategory").equals(cat))
+                    {
+                        return true;
+                    }
+                }while(rs.next());
+            }
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+        }
+        return false;
+                
+    }
+    //finished
     private void updateCategoryWeight(Connection conn, int classID)
     {
         String delStmt = "DELETE FROM CategoryWeight WHERE classID=" + classID;
@@ -169,7 +197,7 @@ public class CategoryWeightMod
             se.printStackTrace();
         }
     }
-    
+    //finished
     private boolean weightSumValid()
     {
         int sum = 0;
@@ -186,7 +214,7 @@ public class CategoryWeightMod
             return false;
         }
     }
-    
+    //finished
     public static int getGradingScaleID(Connection conn, int classID)
     {
         String stmt = "SELECT gsID FROM Class WHERE cID=" + classID;
