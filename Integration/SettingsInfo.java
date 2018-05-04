@@ -40,7 +40,7 @@ public final class SettingsInfo
     public static Connection SetSelectedDatabaseAndGetConnection(Settings settings, Database db)
     {
         Connection connect;
-        if(settings.getUserMode() == settings.STUDENT)
+        if(settings.getUserMode().get() == settings.STUDENT)
         {
             db = new Database("jdbc:derby:GPTStudentTest;create=true", settings.getFilePathToDataBaseFiles().get());
             connect = db.getConnection();
@@ -74,10 +74,9 @@ public final class SettingsInfo
         
         ComboBox modeBox = new ComboBox();
         modeBox.setItems(FXCollections.observableArrayList(MODE_SETTINGS));
-        modeBox.setValue(MODE_SETTINGS[Integer.parseInt(Long.toString(settings.getUserMode()))]);
+        modeBox.setValue(MODE_SETTINGS[Integer.parseInt(Long.toString(settings.getUserMode().get()))]);
         modeBox.getSelectionModel().selectedItemProperty().addListener(e -> {
-            System.out.println("hello there");
-            if(modeBox.getSelectionModel().selectedIndexProperty().intValue() != settings.getUserMode())
+            if(modeBox.getSelectionModel().selectedIndexProperty().intValue() != settings.getUserMode().get())
             {
                 settings.setUserMode(modeBox.getSelectionModel().selectedIndexProperty().intValue());
                 SaveSettingsFile(settings, filepathToSettingsFile);
