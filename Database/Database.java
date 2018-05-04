@@ -14,7 +14,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -74,7 +73,6 @@ public class Database
                     //will exit if a table that is non system-generated is found
                     if(!rs.getString(3).contains("SYS"))
                     {
-                        System.out.println(rs.getString(3));
                         return false;
                     }
                 }
@@ -96,7 +94,6 @@ public class Database
             for(int i = 0;i < statements.length;i++)
             {
                 ps = conn.prepareStatement(statements[i]);
-                System.out.println(statements[i]);
                 
                 ps.executeUpdate();
             }
