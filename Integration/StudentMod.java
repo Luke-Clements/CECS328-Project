@@ -106,12 +106,19 @@ public class StudentMod
         Button saveStudent = new Button("Save Student Changes");
         saveStudent.setOnMouseClicked(e -> 
         {
-            Student s = new Student();
-            s.setSName(new SimpleStringProperty(nameField.getText()));
-            s.setSEmail(new SimpleStringProperty(emailField.getText()));
-            s.setSID(new SimpleIntegerProperty(Integer.parseInt(idField.getText())));
-            int classID = cm.getClassTable().getSelectionModel().getSelectedItem().getCID();
-            this.insertUpdateStudent(classID, s, conn);
+            try
+            {
+                Student s = new Student();
+                s.setSName(new SimpleStringProperty(nameField.getText()));
+                s.setSEmail(new SimpleStringProperty(emailField.getText()));
+                s.setSID(new SimpleIntegerProperty(Integer.parseInt(idField.getText())));
+                int classID = cm.getClassTable().getSelectionModel().getSelectedItem().getCID();
+                this.insertUpdateStudent(classID, s, conn);
+            }
+            catch(NumberFormatException nfe)
+            {
+                SettingsInfo.Notification("The id field must contain an integer.");
+            }
         });
         
         Button removeStudentFromClass = new Button("Remove Student From Class");
@@ -190,14 +197,9 @@ public class StudentMod
         }
         catch(SQLException se)
         {
-            se.printStackTrace();
+            SettingsInfo.Notification(se.getMessage());
         }
-        catch(NullPointerException npe)
-        {
-            System.out.println("null somewhere");
-            npe.printStackTrace();
-            //notification window
-        }
+        
         studentItems = GetStudentTableValues(classID, conn);
         studentTable.setItems(studentItems);     
     }
@@ -220,7 +222,7 @@ public class StudentMod
         }
         catch(SQLException se)
         {
-            se.printStackTrace();
+            SettingsInfo.Notification(se.getMessage());
         }
     }
     
@@ -242,7 +244,7 @@ public class StudentMod
         }
         catch(SQLException se)
         {
-            se.printStackTrace();
+            SettingsInfo.Notification(se.getMessage());
         }
     }
     
@@ -263,7 +265,7 @@ public class StudentMod
         }
         catch(SQLException se)
         {
-            se.printStackTrace();
+            SettingsInfo.Notification(se.getMessage());
         }
         return FXCollections.observableArrayList(sa);
     }
@@ -294,7 +296,7 @@ public class StudentMod
         }
         catch(SQLException se)
         {
-            se.printStackTrace();
+            SettingsInfo.Notification(se.getMessage());
         }
         return FXCollections.observableArrayList(sa);
     }
