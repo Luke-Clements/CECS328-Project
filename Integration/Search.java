@@ -9,6 +9,7 @@ import BackCode.Assignment;
 import BackCode.Calculations;
 import BackCode.ClassGrade;
 import BackCode.GradingScale;
+import BackCode.Settings;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,7 +70,7 @@ public class Search
         return null;
     }
     
-    public void SetupGradeInfo(Connection conn, Search search, VBox gradeInfo)
+    public void SetupGradeInfo(Settings settings, StudentMod sm, Connection conn, Search search, VBox gradeInfo)
     {
         gradeInfo.getChildren().clear();
         int classID;
@@ -80,7 +81,7 @@ public class Search
         {
             classID = classGradeTable.getSelectionModel().getSelectedItem().getClassID();
             gsID = CategoryWeightMod.getGradingScaleID(conn, classID);
-            assignments = AssignmentMod.GetAssignmentValues(classID, conn);
+            assignments = AssignmentMod.GetAssignmentValues(settings, sm, classID, conn);
             categoryWeights = CategoryWeightMod.GetCategoryWeightValues(gsID, conn);
         }
             
@@ -97,10 +98,10 @@ public class Search
         gradeInfo.getChildren().clear();
         gradeInfo.getChildren().addAll(maxClassScore, gpa);
     }
-    public void SetupSearchTable(Connection conn, VBox searchTable,VBox gradeInfo)
+    public void SetupSearchTable(Settings settings, StudentMod sm, Connection conn, VBox searchTable,VBox gradeInfo)
     {
         searchTable.getChildren().clear();
-        classGradeItem = getClassGradeItems(conn);
+        classGradeItem = getClassGradeItems(settings, sm, conn);
         
         classGradeTable.setItems(SetupSearchTableResults(searchField.getText()));
         
@@ -117,11 +118,11 @@ public class Search
 
         searchField.setOnKeyTyped(e ->{
             classGradeTable.setItems(SetupSearchTableResults(searchField.getText()));
-            SetupGradeInfo(conn, this, gradeInfo);
+            SetupGradeInfo(settings, sm, conn, this, gradeInfo);
         });
                 
         classGradeTable.getSelectionModel().selectedIndexProperty().addListener(e -> {
-            SetupGradeInfo(conn, this, gradeInfo);
+            SetupGradeInfo(settings, sm, conn, this, gradeInfo);
         });
         
         classGradeTable.getColumns().setAll(classNameCol, semesterCol, gradeCol, professorCol, schoolCol);
@@ -139,7 +140,7 @@ public class Search
         return grades;
     }
     
-    public static ObservableList<ClassGrade> getClassGradeItems(Connection conn)
+    public static ObservableList<ClassGrade> getClassGradeItems(Settings settings, StudentMod sm, Connection conn)
     {
         ObservableList<BackCode.Class> classes = ClassMod.GetClassTableValues(conn);
         int gsID;
@@ -156,7 +157,7 @@ public class Search
             classID = c.getCID();
             gsID = CategoryWeightMod.getGradingScaleID(conn, classID);
             gs = GradingScaleMod.getGradingScale(conn, gsID);
-            assignments = AssignmentMod.GetAssignmentValues(classID, conn);
+            assignments = AssignmentMod.GetAssignmentValues(settings, sm, classID, conn);
             categoryWeights = CategoryWeightMod.GetCategoryWeightValues(classID, conn);
             float currentGrade = Calculations.calculateCurrentClassScore(categoryWeights, assignments);
             
