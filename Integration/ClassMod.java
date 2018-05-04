@@ -81,7 +81,10 @@ public class ClassMod
                 {
                     am.SetupAssignmentTable(sm, settings, conn, assignmentMod, this);
                 }
-                sm.SetupStudentTable(settings, conn, studentModBox, assignmentMod, this, am);
+                else
+                {
+                    sm.SetupStudentTable(settings, conn, studentModBox, assignmentMod, this, am);
+                }
                 SetupClassMod(settings, search, classMod, classInfo, conn);
                 String[] gsInfo;
                 if(c.getCID() != -1)
@@ -156,25 +159,25 @@ public class ClassMod
         Button saveClass = new Button("Save Class/Grading Scale Changes");
         saveClass.setOnMouseClicked(e -> 
         {
-            int gsID = Integer.parseInt(GradingScaleMod.getGradingScaleID(settings, conn));
-            String Stmt = "INSERT INTO Class(cID, cName, teacherName, semester, schoolName, cTime, gsID) "+
-                "VALUES(?, ?, ?, ?, ?, ?, ?)";
-            String testStmt = "SELECT cName, teacherName, semester, cTime FROM Class WHERE cID=" 
-                                    + classTable.getSelectionModel().getSelectedItem().getCID();
-            String updateStmt;
-           
-            String className = nameField.getText();
-            String classSemester = semesterField.getText();
-            String classSchool = schoolNameField.getText();
-            String classTeacherName = professorNameField.getText();
-            String classTime = timeField.getText();
-            
-            updateStmt = "UPDATE Class SET schoolName='" + schoolNameField.getText() + "', gsID=" + gsID + 
-                        " WHERE cName='" + className + "' and teacherName='" + classTeacherName + 
-                                "' and semester='" + classSemester + "' and cTime='" + classTime + "'";
-            
             try
             {
+                int gsID = Integer.parseInt(GradingScaleMod.getGradingScaleID(settings, conn));
+                String Stmt = "INSERT INTO Class(cID, cName, teacherName, semester, schoolName, cTime, gsID) "+
+                    "VALUES(?, ?, ?, ?, ?, ?, ?)";
+                String testStmt = "SELECT cName, teacherName, semester, cTime FROM Class WHERE cID=" 
+                                        + classTable.getSelectionModel().getSelectedItem().getCID();
+                String updateStmt;
+
+                String className = nameField.getText();
+                String classSemester = semesterField.getText();
+                String classSchool = schoolNameField.getText();
+                String classTeacherName = professorNameField.getText();
+                String classTime = timeField.getText();
+
+                updateStmt = "UPDATE Class SET schoolName='" + schoolNameField.getText() + "', gsID=" + gsID + 
+                            " WHERE cName='" + className + "' and teacherName='" + classTeacherName + 
+                                    "' and semester='" + classSemester + "' and cTime='" + classTime + "'";
+            
                 if(className.equals("") || classSemester.equals("") || classSchool.equals("") || classTime.toString().equals(""))
                 {
                     throw new NullPointerException("Cannot have empty fields.");
@@ -208,14 +211,14 @@ public class ClassMod
             }
             catch(SQLException se)
             {
-                se.printStackTrace();
+                SettingsInfo.Notification(se.getMessage());
             }
-            catch(NullPointerException npe)
+            catch(NumberFormatException nfe)
             {
-                System.out.println("null somewhere");
-                npe.printStackTrace();
-                //notification window
+                //this should never happen
+                SettingsInfo.Notification("The grading scale is not in the database.");
             }
+
             classItems = GetClassTableValues(conn);
             classItems.add(0, new BackCode.Class());
             classTable.setItems(classItems);
@@ -238,7 +241,7 @@ public class ClassMod
         }
         catch(SQLException se)
         {
-            se.printStackTrace();
+            SettingsInfo.Notification(se.getMessage());
         }
     }
     //finished
@@ -272,7 +275,7 @@ public class ClassMod
         }
         catch(SQLException se)
         {
-            
+            SettingsInfo.Notification(se.getMessage());
         }
         return FXCollections.observableArrayList(ac);
     }
