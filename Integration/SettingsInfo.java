@@ -184,8 +184,10 @@ public final class SettingsInfo
 //            System.out.println(settings.getUserName());
             settings.setUserMode((long)jsonObj.get("UserMode"));
 //            System.out.println(settings.getUserMode());
-            settings.setClassCounter(Math.toIntExact((long)jsonObj.get("ClassCounter")));
-            settings.setGradingScaleCounter(Math.toIntExact((long)jsonObj.get("GradingScaleCounter")));
+            settings.setClassCounter(Math.toIntExact((long)jsonObj.get("studentClassCounter")), Math.toIntExact(Settings.STUDENT));
+            settings.setClassCounter(Math.toIntExact((long)jsonObj.get("teacherClassCounter")), Math.toIntExact(Settings.TEACHER));
+            settings.setGradingScaleCounter(Math.toIntExact((long)jsonObj.get("studentGradingScaleCounter")), Math.toIntExact(Settings.STUDENT));
+            settings.setGradingScaleCounter(Math.toIntExact((long)jsonObj.get("teacherGradingScaleCounter")), Math.toIntExact(Settings.TEACHER));
         } catch (FileNotFoundException e) {
             System.out.println("The selected file at " + filePathToSettingsInfo + " does not exist.");
         } catch (IOException ex) {
@@ -205,8 +207,10 @@ public final class SettingsInfo
         obj.put("Id", settings.getIDNumber().get());
         obj.put("Username", settings.getUserName().get());
         obj.put("UserMode", settings.getUserMode());
-        obj.put("ClassCounter", settings.getClassCounter());
-        obj.put("GradingScaleCounter", settings.getGradingScaleCounter());
+        obj.put("studentClassCounter", settings.getClassCounter(Settings.STUDENT));
+        obj.put("teacherClassCounter", settings.getClassCounter(Settings.TEACHER));
+        obj.put("studentGradingScaleCounter", settings.getGradingScaleCounter(Settings.STUDENT));
+        obj.put("teacherGradingScaleCounter", settings.getGradingScaleCounter(Settings.TEACHER));
 
         try {
             FileWriter fw = new FileWriter(filePathToSettingsInfo);
