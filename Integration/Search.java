@@ -9,7 +9,6 @@ import BackCode.Assignment;
 import BackCode.Calculations;
 import BackCode.ClassGrade;
 import BackCode.GradingScale;
-import BackCode.Settings;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,8 +21,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 /**
@@ -160,7 +157,7 @@ public class Search
             gsID = CategoryWeightMod.getGradingScaleID(conn, classID);
             gs = GradingScaleMod.getGradingScale(conn, gsID);
             assignments = AssignmentMod.GetAssignmentValues(classID, conn);
-            categoryWeights = CategoryWeightMod.GetCategoryWeightValues(gsID, conn);
+            categoryWeights = CategoryWeightMod.GetCategoryWeightValues(classID, conn);
             float currentGrade = Calculations.calculateCurrentClassScore(categoryWeights, assignments);
             
             cg.setClassID(new SimpleIntegerProperty(classID));
