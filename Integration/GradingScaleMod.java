@@ -100,23 +100,22 @@ public class GradingScaleMod
         }
         catch(SQLException se)
         {
-            se.printStackTrace();
+            SettingsInfo.Notification(se.getMessage());
         }
         return null;
     }
     public static String getGradingScaleID(Settings settings, Connection conn)
     {
-        String stmt = "SELECT gsID FROM GradingScale where A= " + Float.parseFloat(aText.getText()) +
-                                                     " and B= " + Float.parseFloat(bText.getText()) +
-                                                     " and C= " + Float.parseFloat(cText.getText()) +
-                                                     " and D= " + Float.parseFloat(dText.getText()) +
-                                                     " and F= " + Float.parseFloat(fText.getText()) +
-                                                     " and passFail = " + passFailBox.getSelectionModel().getSelectedItem();
-        
-        ResultSet rs;
-        
         try
         {
+            String stmt = "SELECT gsID FROM GradingScale where A= " + Float.parseFloat(aText.getText()) +
+                                                         " and B= " + Float.parseFloat(bText.getText()) +
+                                                         " and C= " + Float.parseFloat(cText.getText()) +
+                                                         " and D= " + Float.parseFloat(dText.getText()) +
+                                                         " and F= " + Float.parseFloat(fText.getText()) +
+                                                         " and passFail = " + passFailBox.getSelectionModel().getSelectedItem();
+
+            ResultSet rs;
             PreparedStatement ps = conn.prepareStatement(stmt);
             
             rs = ps.executeQuery();
@@ -133,24 +132,28 @@ public class GradingScaleMod
             }
 //            se.printStackTrace();
         }
+            catch(NumberFormatException nfe)
+            {
+                SettingsInfo.Notification("The grading scale fields must contain an integer.");
+            }
         return null;
     }
     
     public static void InsertNewGradingScale(Settings settings, Connection conn)
     {
-        String Stmt = "INSERT INTO GradingScale(gsID, A, B, C, D, F, passFail) "+
-                "VALUES(?, ?, ?, ?, ?, ?, ?)";
-        
-        //implement find grading scale here
-        float a = Float.parseFloat(aText.getText());
-        float b = Float.parseFloat(bText.getText());
-        float c = Float.parseFloat(cText.getText());
-        float d = Float.parseFloat(dText.getText());
-        float f = Float.parseFloat(fText.getText());
-        boolean passFail = false;
-
         try
         {
+            String Stmt = "INSERT INTO GradingScale(gsID, A, B, C, D, F, passFail) "+
+                    "VALUES(?, ?, ?, ?, ?, ?, ?)";
+
+            //implement find grading scale here
+            float a = Float.parseFloat(aText.getText());
+            float b = Float.parseFloat(bText.getText());
+            float c = Float.parseFloat(cText.getText());
+            float d = Float.parseFloat(dText.getText());
+            float f = Float.parseFloat(fText.getText());
+            boolean passFail = false;
+
             if(aText.getText().equals("") || bText.getText().equals("") || cText.getText().equals("") || dText.getText().equals("") || fText.getText().equals(""))
             {
                 throw new NullPointerException("Cannot have empty fields.");
@@ -169,13 +172,11 @@ public class GradingScaleMod
         }
         catch(SQLException se)
         {
-            se.printStackTrace();
+            SettingsInfo.Notification(se.getMessage());
         }
-        catch(NullPointerException npe)
+        catch(NumberFormatException nfe)
         {
-            System.out.println("null somewhere");
-            npe.printStackTrace();
-            //notification window
+            SettingsInfo.Notification("The grading scale fields must contain an integer.");
         }
     }
     
@@ -197,7 +198,7 @@ public class GradingScaleMod
         }
         catch(SQLException se)
         {
-            se.printStackTrace();
+            SettingsInfo.Notification(se.getMessage());
         }
         return null;
     }
