@@ -12,7 +12,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javafx.collections.FXCollections;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -116,7 +115,6 @@ public class GradingScaleMod
         
         ResultSet rs = null;
         
-        System.out.println(stmt);
         try
         {
             PreparedStatement ps = conn.prepareStatement(stmt);
@@ -124,7 +122,6 @@ public class GradingScaleMod
             rs = ps.executeQuery();
             
             rs.next();
-            System.out.println(rs.getString("gsID"));
             return rs.getString("gsID");
         }
         catch(SQLException se)
@@ -132,7 +129,6 @@ public class GradingScaleMod
             if(se.getMessage().equals("Invalid cursor state - no current row."))
             {
                 InsertNewGradingScale(settings, conn);
-                System.out.println("New: ");
                 return getGradingScaleID(settings, conn);
             }
 //            se.printStackTrace();
