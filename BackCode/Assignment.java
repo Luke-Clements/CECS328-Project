@@ -115,7 +115,6 @@ public class Assignment
         assignmentInfo[1] = assignmentCategory.get();
         assignmentInfo[2] = assignmentScore == null ? "-1" : assignmentScore.get() + "";
         assignmentInfo[3] = assignmentMaxScore.get() + "";
-        System.out.println(assignmentName.get());
         return assignmentInfo;
     }
 //    public FloatProperty getAssignmentGrade()
