@@ -18,25 +18,55 @@ public class Settings
     public static final long STUDENT = 1; //for comparing which mode is being used 
     public static final long TEACHER = 0;
     private LongProperty userMode;
-    private static int classCounter = 0;
-    private static int gradingScaleCounter = 0;
+    private static int studentClassCounter = 0;
+    private static int studentGradingScaleCounter = 0;
+    private static int teacherClassCounter = 0;
+    private static int teacherGradingScaleCounter = 0;
     
-    public void incrementClassCounter()
+    public void incrementClassCounter(long mode)
     {
-        classCounter++;
+        if(mode == STUDENT)
+        {
+            studentClassCounter++;
+        }
+        else
+        {
+            teacherClassCounter++;
+        }
     }
-    public void incrementGradingScaleCounter()
+    public void incrementGradingScaleCounter(long mode)
     {
-        gradingScaleCounter++;
+        if(mode == STUDENT)
+        {
+            studentGradingScaleCounter++;
+        }
+        else
+        {
+            teacherGradingScaleCounter++;
+        }
     }
     
-    public int getClassCounter()
+    public int getClassCounter(long mode)
     {
-        return classCounter;
+        if(mode == STUDENT)
+        {
+            return studentClassCounter;
+        }
+        else
+        {
+            return teacherClassCounter;
+        }
     }
-    public int getGradingScaleCounter()
+    public int getGradingScaleCounter(long mode)
     {
-        return gradingScaleCounter;
+        if(mode == STUDENT)
+        {
+            return studentGradingScaleCounter;
+        }
+        else
+        {
+            return teacherGradingScaleCounter;
+        }
     }
     
     public StringProperty getUserName()
@@ -66,13 +96,27 @@ public class Settings
         }
     }
     
-    public void setClassCounter(int cc)
+    public void setClassCounter(int cc, long mode)
     {
-        classCounter = cc;
+        if(mode == STUDENT)
+        {
+            studentClassCounter = cc;
+        }
+        else
+        {
+            teacherClassCounter = cc;
+        }
     }
-    public void setGradingScaleCounter(int gsc)
+    public void setGradingScaleCounter(int gsc, long mode)
     {
-        gradingScaleCounter = gsc;
+        if(mode == STUDENT)
+        {
+            studentGradingScaleCounter = gsc;
+        }
+        else
+        {
+            teacherGradingScaleCounter = gsc;
+        }
     }
     public void setUserName(String un)
     {
