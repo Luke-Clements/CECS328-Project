@@ -111,24 +111,64 @@ public class AssignmentMod
         Button saveAssignment = new Button("Save Assignment Changes");
         saveAssignment.setOnMouseClicked(e -> 
         {
-            String Stmt = "INSERT INTO Assignment(cID, aName, aCategory, score, maxScore) "+
-                "VALUES(?, ?, ?, ?, ?)";
-           
+            Assignment a = new Assignment();
+            a.setName(new SimpleStringProperty(nameField.getText()));
+            a.setCategory(new SimpleStringProperty(categoryField.getText()));
+            a.setMaxScore(new SimpleFloatProperty(Float.parseFloat(maxScoreField.getText())));
+            a.setScore(new SimpleFloatProperty(Float.parseFloat(scoreField.getText())));
+                   
             int classID = cm.getClassTable().getSelectionModel().getSelectedItem().getCID();
-            //perform category check in categoryweight
-            String aName = nameField.getText();
-            String aCategory = categoryField.getText();
-            float score = Float.parseFloat(scoreField.getText());
-            float maxScore = Float.parseFloat(maxScoreField.getText());
-
-            try
+            if(CategoryWeightMod.isValidCategory(a.getAssignmentCategory(), conn, classID))
             {
-                if(aName.equals("") || aCategory.equals("") || scoreField.getText().equals("") || maxScoreField.getText().toString().equals(""))
-                {
-                    throw new NullPointerException("Cannot have empty fields.");
-                }
-                PreparedStatement pStmt = conn.prepareStatement(Stmt);
-                pStmt.setInt(1, classID);
+                insertUpdateAssignment(classID, a, conn);
+            }
+        });
+        
+        Button deleteAssignment = new Button("Delete Assignment");
+        deleteAssignment.setOnMouseClicked(e -> {
+            int classID = cm.getClassTable().getSelectionModel().getSelectedItem().getCID();
+            deleteAssignment(classID, assignmentTable.getSelectionModel().getSelectedItem(), conn);
+            assignmentItems = GetAssignmentTableValues(classID, conn);
+            assignmentTable.setItems(assignmentItems);
+        });
+        
+        assignmentMod.getChildren().addAll(getAssignmentName, getCategory, getScore, getMaxScore, saveAssignment, deleteAssignment);
+    }
+    //finished
+    public void insertUpdateAssignment(int classID, Assignment a, Connection conn)
+    {
+        String aName = a.getAssignmentName();
+        String aCategory = a.getAssignmentCategory();
+        float score = a.getAssignmentScore();
+        float maxScore = a.getAssignmentMaxScore();
+        
+        String Stmt = "INSERT INTO Assignment(cID, aName, aCategory, score, maxScore) "+
+                "VALUES(?, ?, ?, ?, ?)";
+        String updateStmt = "UPDATE Assignment SET score=" + score + ", maxScore=" + maxScore + 
+                        " WHERE cID=" + classID + " and aName='" + aName + 
+                                "' and aCategory='" + aCategory + "'";
+        String testStmt = "SELECT cID, aName, aCategory FROM Assignment WHERE cID=" + classID + " and aName='" +
+                                        aName + "' and aCategory='" + aCategory + "'";
+
+        try
+        {
+            if(aName.equals("") || aCategory.equals("") || (score+"").equals("") || (maxScore+"").equals(""))
+            {
+                throw new NullPointerException("Cannot have empty fields.");
+            }
+            PreparedStatement pStmt = conn.prepareStatement(testStmt);
+            ResultSet rs = pStmt.executeQuery();
+            
+            if(rs.next() && rs.getString("aName").equals(aName) && rs.getString("aCategory").equals(aCategory) && rs.getInt("cID") == classID)
+            {
+                pStmt = conn.prepareStatement(updateStmt);
+                    
+                pStmt.executeUpdate();
+            }
+            else
+            {
+                pStmt = conn.prepareStatement(Stmt);
+                pStmt.setInt(1,classID);
                 pStmt.setString(2,aName);
                 pStmt.setString(3,aCategory);
                 pStmt.setFloat(4,score);
@@ -136,44 +176,27 @@ public class AssignmentMod
 
                 pStmt.executeUpdate();
             }
-            catch(SQLException se)
-            {
-                se.printStackTrace();
-            }
-            catch(NullPointerException npe)
-            {
-                System.out.println("null somewhere");
-                npe.printStackTrace();
-                //notification window
-            }
-            assignmentItems = GetAssignmentTableValues(classID, conn);
-            for(Assignment a:assignmentItems)
-            {
-                System.out.println(a.getAssignmentName());
-            }
-            assignmentTable.setItems(assignmentItems);            
-        });
-        
-        Button deleteAssignment = new Button("Delete Assignment");
-        deleteAssignment.setOnMouseClicked(e -> {
-            int classID = cm.getClassTable().getSelectionModel().getSelectedItem().getCID();
-            deleteAssignment(classID, assignmentTable.getSelectionModel().getSelectedItem(), conn);
-            System.out.println(assignmentTable.getSelectionModel().getSelectedItem().getAssignmentName());
-            System.out.println(assignmentTable.getSelectionModel().getSelectedItem().getAssignmentCategory());
-            assignmentItems = GetAssignmentTableValues(classID, conn);
-            assignmentTable.setItems(assignmentItems);
-        });
-        
-        assignmentMod.getChildren().addAll(getAssignmentName, getCategory, getScore, getMaxScore, saveAssignment, deleteAssignment);
+        }
+        catch(SQLException se)
+        {
+            se.printStackTrace();
+        }
+        catch(NullPointerException npe)
+        {
+            System.out.println("null somewhere");
+            npe.printStackTrace();
+            //notification window
+        }
+        assignmentItems = GetAssignmentTableValues(classID, conn);
+        assignmentTable.setItems(assignmentItems);     
     }
-    
+    //finished
     public static void deleteAssignment(int classID, Assignment a, Connection conn)
     {
         String stmt = "DELETE FROM Assignment WHERE cID=" + classID + 
                                             " and aName='" + a.getAssignmentName() +
                                             "' and aCategory='" + a.getAssignmentCategory() + "'";
         
-        System.out.println(stmt);
         try
         {
             PreparedStatement pStmt = conn.prepareStatement(stmt);
@@ -184,7 +207,7 @@ public class AssignmentMod
             se.printStackTrace();
         }
     }
-    
+    //finished
     public static ObservableList<Assignment> GetAssignmentTableValues(int classID, Connection conn)
     {
         String stmt = "SELECT * FROM Assignment WHERE cID=" + classID;
@@ -217,7 +240,7 @@ public class AssignmentMod
         }
         return FXCollections.observableArrayList(aa);
     }
-    
+    //finished
     public static ObservableList<Assignment> GetAssignmentValues(int classID, Connection conn)
     {
         String stmt = "SELECT * FROM Assignment WHERE cID=" + classID;
