@@ -205,7 +205,7 @@ public final class SettingsInfo
         obj.put("DatabaseFilepath", settings.getFilePathToDataBaseFiles().get());
         obj.put("Id", settings.getIDNumber().get());
         obj.put("Username", settings.getUserName().get());
-        obj.put("UserMode", settings.getUserMode());
+        obj.put("UserMode", settings.getUserMode().get());
         obj.put("studentClassCounter", settings.getClassCounter(Settings.STUDENT));
         obj.put("teacherClassCounter", settings.getClassCounter(Settings.TEACHER));
         obj.put("studentGradingScaleCounter", settings.getGradingScaleCounter(Settings.STUDENT));
