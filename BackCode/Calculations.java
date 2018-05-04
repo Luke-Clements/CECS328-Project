@@ -30,7 +30,7 @@ public class Calculations
         }
         return sumOfFinalGrades/(float)(grades.size()-classesNotConsideredForGPA);
     }
-    
+    //finished
     public static String getFinalLetterGrade(float grade, GradingScale gs)
     {
         if(grade > gs.getA()) return "A";
@@ -39,6 +39,7 @@ public class Calculations
         else if(grade > gs.getD()) return "D";
         else return "F";
     }
+    //finished
     private static int getFinalGrade(String letter)
     {
         switch(letter)
@@ -88,7 +89,9 @@ public class Calculations
         for(String key: keys)
         {
             finalScore += 
-                    (categoryScore.get(key)/categoryMaxScore.get(key))*cw.get(key);
+                    (categoryScore.get(key)/
+                    categoryMaxScore.get(key))*
+                    cw.get(key);
         }
         return finalScore;
     }
