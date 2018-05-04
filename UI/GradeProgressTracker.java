@@ -68,13 +68,14 @@ public class GradeProgressTracker extends Application
     public void start(Stage primaryStage) 
     {    
         TabPane mainPane = new TabPane();
-        GridPane searchPane = new GridPane();
+        HBox searchPane = new HBox();
         HBox classAssignmentModificationsPane = new HBox();
         HBox settingsModTab = new HBox();
-        GridPane calculatePane = new GridPane();
+        VBox searchGradeInfo = new VBox();
+        VBox searchTable = new VBox();
+        
         Tab classModificationsTab = new Tab("Update Classes");
         Tab searchTab = new Tab("Search");
-        Tab calculateGradeTab = new Tab("Calculations");
         Tab settingsTab = new Tab("Settings");
         
         InitialStartup(primaryStage);
@@ -83,7 +84,8 @@ public class GradeProgressTracker extends Application
         
         //Setup search tab
         // Name(of class), semester(date), grade, GPA by semester, Professor, SchoolName
-        search.SetupSearchPane(searchPane);
+        search.SetupSearchTable(conn, searchTable, searchGradeInfo);
+        search.SetupGradeInfo(conn, search, searchGradeInfo);
         
         classMod = new ClassMod();
         assignmentMod = new AssignmentMod();
@@ -93,20 +95,18 @@ public class GradeProgressTracker extends Application
         SetupClassAssignmentModificationsPane(classAssignmentModificationsPane);
         //end classInputPane setup
         
-        //Setup calculations tab
-        // calculates GPA based on (very similar to search Pane)
-        
-        
         //Setup settings tab
         SettingsInfo.SetupSettingsMod(settingsModTab, settings, db, conn, filePathToSettingsInfo);
         
         classModificationsTab.setContent(classAssignmentModificationsPane);
         searchTab.setContent(searchPane);
-        calculateGradeTab.setContent(calculatePane);
         settingsTab.setContent(settingsModTab);
-        
-        mainPane.getTabs().addAll(classModificationsTab, searchTab, calculateGradeTab, settingsTab);
+        searchPane.getChildren().addAll(searchTable, searchGradeInfo);
+        mainPane.getTabs().addAll(classModificationsTab, searchTab, settingsTab);
         mainPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
+        mainPane.selectionModelProperty().getValue().selectedItemProperty().addListener(e -> {
+            search.SetupSearchTable(conn, searchTable, searchGradeInfo);
+        });
         
         Scene scene = new Scene(mainPane, 1250, 425);
         
@@ -194,7 +194,7 @@ public class GradeProgressTracker extends Application
         
         //sets up modifying the class values
         classMod.SetupClassMod(settings, null, classModBox, classInfo, conn);
-        assignmentMod.SetupAssignmentMod(-1, conn, assignmentModBox, assignmentInfo);
+        assignmentMod.SetupAssignmentMod(classMod, conn, assignmentModBox, assignmentInfo);
         GradingScaleMod.SetupGradingScaleMod(gradingScaleModBox, GradingScaleMod.GRADING_SCALE_INFO_EMPTY);
         categoryWeightMod.SetupCategoryWeightMod(classMod, conn, categoryWeightModBox, CategoryWeightMod.CATEGORYWEIGHT_INFO_EMPTY);
         
