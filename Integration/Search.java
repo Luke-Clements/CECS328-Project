@@ -5,15 +5,25 @@
  */
 package Integration;
 
+import BackCode.Assignment;
+import BackCode.Calculations;
 import BackCode.ClassGrade;
+import BackCode.GradingScale;
+import BackCode.Settings;
+import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.HashMap;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 /**
@@ -23,6 +33,16 @@ import javafx.scene.layout.VBox;
 public class Search 
 {
     private ObservableList<ClassGrade> classGradeItem;
+    private TableView<ClassGrade> classGradeTable = new TableView<ClassGrade>();
+    private Label maxClassScore = new Label();
+    private VBox searchPlusTable = new VBox();
+    private TextField searchField = new TextField();
+    private Label gpa;
+    
+    public TableView<ClassGrade> getSearchTable()
+    {
+        return classGradeTable;
+    }
     
     //finished
     public ObservableList<ClassGrade> SetupSearchTableResults(String searchItem)
@@ -52,15 +72,38 @@ public class Search
         return null;
     }
     
-    public void SetupSearchPane(GridPane searchPane)
+    public void SetupGradeInfo(Connection conn, Search search, VBox gradeInfo)
     {
-        ArrayList<ClassGrade> cgi = new ArrayList();
-        //implement function to return an arraylist of classGrade items
-        cgi.add(new ClassGrade());
-        classGradeItem = FXCollections.observableList(cgi);
-        VBox searchPlusTable = new VBox();
-        TableView<ClassGrade> classGradeTable = new TableView();
-        TextField searchField = new TextField();
+        gradeInfo.getChildren().clear();
+        int classID;
+        int gsID;
+        ObservableList<Assignment> assignments = null;
+        HashMap<String, Integer> categoryWeights = null;
+        if(classGradeTable.getSelectionModel().getSelectedItem() != null)
+        {
+            classID = classGradeTable.getSelectionModel().getSelectedItem().getClassID();
+            gsID = CategoryWeightMod.getGradingScaleID(conn, classID);
+            assignments = AssignmentMod.GetAssignmentValues(classID, conn);
+            categoryWeights = CategoryWeightMod.GetCategoryWeightValues(gsID, conn);
+        }
+            
+        gpa = new Label("The GPA of all items in the class table is " + Calculations.calculateGPA(classGradeItem));
+        if(assignments != null)
+        {
+            maxClassScore.setText("Maximum Class Score: " + Calculations.calculateMaxClassScore(categoryWeights, assignments));
+        }
+        else
+        {
+            maxClassScore.setText("");
+        }
+        
+        gradeInfo.getChildren().clear();
+        gradeInfo.getChildren().addAll(maxClassScore, gpa);
+    }
+    public void SetupSearchTable(Connection conn, VBox searchTable,VBox gradeInfo)
+    {
+        searchTable.getChildren().clear();
+        classGradeItem = getClassGradeItems(conn);
         
         classGradeTable.setItems(SetupSearchTableResults(searchField.getText()));
         
@@ -75,16 +118,59 @@ public class Search
         TableColumn<ClassGrade,String> schoolCol = new TableColumn(ClassMod.CLASS_GRADE_INFO_CATEGORIES[4]);
         schoolCol.setCellValueFactory(new PropertyValueFactory("schoolName"));
 
-        classGradeTable.getColumns().setAll(classNameCol, semesterCol, gradeCol, professorCol, schoolCol);
-        
         searchField.setOnKeyTyped(e ->{
             classGradeTable.setItems(SetupSearchTableResults(searchField.getText()));
+            SetupGradeInfo(conn, this, gradeInfo);
+        });
+                
+        classGradeTable.getSelectionModel().selectedIndexProperty().addListener(e -> {
+            SetupGradeInfo(conn, this, gradeInfo);
         });
         
-        //setup search field/button and table
-        searchPlusTable.getChildren().addAll(searchField, classGradeTable);
-        searchPlusTable.setFillWidth(true);
-        searchPane.getChildren().add(searchPlusTable);
+        classGradeTable.getColumns().setAll(classNameCol, semesterCol, gradeCol, professorCol, schoolCol);
+        
+        searchTable.getChildren().addAll(searchField, classGradeTable);
     }
     
+    public static ArrayList<String> getGrades(Search search)
+    {
+        ArrayList<String> grades = new ArrayList();
+        for(ClassGrade cg:search.getSearchTable().getItems())
+        {
+            grades.add(cg.getGrade());
+        }
+        return grades;
+    }
+    
+    public static ObservableList<ClassGrade> getClassGradeItems(Connection conn)
+    {
+        ObservableList<BackCode.Class> classes = ClassMod.GetClassTableValues(conn);
+        int gsID;
+        int classID;
+        ObservableList<Assignment> assignments;
+        HashMap<String, Integer> categoryWeights;
+        ArrayList<ClassGrade> classGradeItems = new ArrayList();
+        ClassGrade cg;
+        GradingScale gs;
+        
+        for(BackCode.Class c: classes)
+        {
+            cg = new ClassGrade();
+            classID = c.getCID();
+            gsID = CategoryWeightMod.getGradingScaleID(conn, classID);
+            gs = GradingScaleMod.getGradingScale(conn, gsID);
+            assignments = AssignmentMod.GetAssignmentValues(classID, conn);
+            categoryWeights = CategoryWeightMod.GetCategoryWeightValues(gsID, conn);
+            float currentGrade = Calculations.calculateCurrentClassScore(categoryWeights, assignments);
+            
+            cg.setClassID(new SimpleIntegerProperty(classID));
+            cg.setName(new SimpleStringProperty(c.getClassName()));
+            cg.setProfName(new SimpleStringProperty(c.getClassTeacherName()));
+            cg.setSchoolName(new SimpleStringProperty(c.getClassSchool()));
+            cg.setSemester(new SimpleStringProperty(c.getClassSemester()));
+            cg.setGrade(new SimpleStringProperty(Calculations.getFinalLetterGrade(currentGrade, gs)));
+            classGradeItems.add(cg);
+        }
+        return FXCollections.observableArrayList(classGradeItems);
+    }
 }
