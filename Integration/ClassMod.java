@@ -11,11 +11,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Map;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -45,7 +43,9 @@ public class ClassMod
         return classTable;
     }
     //finished
-    public void SetupClassTable(CategoryWeightMod cwm, AssignmentMod am, Settings settings, Connection conn, VBox classTableSearch, VBox classMod, VBox assignmentMod, VBox gradingScaleModBox, VBox categoryWeightModBox, TableView<Map.Entry<String, Integer>> categoryWeightTable)
+    public void SetupClassTable(StudentMod sm, CategoryWeightMod cwm, AssignmentMod am, Settings settings, Connection conn, 
+            VBox classTableSearch, VBox classMod, VBox assignmentMod, VBox gradingScaleModBox, VBox studentModBox, 
+            VBox categoryWeightModBox, TableView<Map.Entry<String, Integer>> categoryWeightTable)
     {
         classTable = new TableView<>();
         TextField search = new TextField();
@@ -77,7 +77,11 @@ public class ClassMod
             {
                 BackCode.Class c = classTable.getSelectionModel().getSelectedItem();
                 String[] classInfo = c.getClassInfoArray(); //ignore errors from this line, as they do not affect the program
-                am.SetupAssignmentTable(conn, assignmentMod, this);
+                if(settings.getUserMode().get() == Settings.STUDENT)
+                {
+                    am.SetupAssignmentTable(sm, settings, conn, assignmentMod, this);
+                }
+                sm.SetupStudentTable(settings, conn, studentModBox, assignmentMod, this, am);
                 SetupClassMod(settings, search, classMod, classInfo, conn);
                 String[] gsInfo;
                 if(c.getCID() != -1)
@@ -92,14 +96,15 @@ public class ClassMod
                 }
                 GradingScaleMod.SetupGradingScaleMod(gradingScaleModBox, gsInfo);
                 cwm.SetupCategoryWeightTable(conn, this, categoryWeightModBox, c.getCID());
+                //
             }
         });
         
         search.setOnKeyTyped(e ->{
             classTable.setItems(SetupClassTableResults(search.getText()));
-            am.SetupAssignmentTable(conn, assignmentMod, this);
+            am.SetupAssignmentTable(sm, settings, conn, assignmentMod, this);
             SetupClassMod(settings, search, classMod, CLASS_INFO_EMPTY, conn);
-            am.SetupAssignmentMod(this, conn, assignmentMod, AssignmentMod.ASSIGNMENT_INFO_EMPTY);
+            am.SetupAssignmentMod(sm, settings, this, conn, assignmentMod, AssignmentMod.ASSIGNMENT_INFO_EMPTY);
             GradingScaleMod.SetupGradingScaleMod(gradingScaleModBox, GradingScaleMod.GRADING_SCALE_INFO_EMPTY);
             cwm.SetupCategoryWeightMod(this, conn, categoryWeightModBox, CategoryWeightMod.CATEGORYWEIGHT_INFO_EMPTY);
         });
