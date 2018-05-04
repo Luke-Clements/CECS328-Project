@@ -16,18 +16,9 @@ import Integration.SettingsInfo;
 import Integration.StudentMod;
 import java.io.File;
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Application;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
-import javafx.beans.property.SimpleLongProperty;
-import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
@@ -35,7 +26,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
@@ -212,20 +202,6 @@ public class GradeProgressTracker extends Application
         categoryWeightTable = categoryWeightMod.SetupCategoryWeightTable(conn, classMod, categoryWeightModBox, 0);
 
         classMod.SetupClassTable(studentMod, categoryWeightMod, assignmentMod, settings, conn, classTableSearch, classModBox, assignmentModBox, gradingScaleModBox, studentModBox, categoryWeightModBox, categoryWeightTable);
-        //every time a different class is selected in the table, 
-        //  the corresponding values are propogated to the classModGrid and the assignment table
-//        classMod.getClassTable().getSelectionModel().selectedItemProperty().addListener(e -> 
-//        {
-////            ArrayList<Assignment> ai = new ArrayList();
-////            //implement function to return an arraylist of assignment items based on the class ID
-////            ai.add(new Assignment());
-////            assignmentItems = FXCollections.observableList(ai);
-////            assignmentTable.setItems(assignmentItems);
-//            
-//            //implement function to return an arraylist of assignment items based upon the class ID
-//            categoryWeightItems = FXCollections.observableArrayList(cw.getCategoryWeight().entrySet());
-//            categoryWeightTable.setItems(categoryWeightItems);
-//        });
         
         //sets up modifying the class values
         classMod.SetupClassMod(settings, null, classModBox, classInfo, conn);
@@ -234,7 +210,15 @@ public class GradeProgressTracker extends Application
         categoryWeightMod.SetupCategoryWeightMod(classMod, conn, categoryWeightModBox, CategoryWeightMod.CATEGORYWEIGHT_INFO_EMPTY);
         studentMod.SetupStudentMod(classMod, conn, studentModBox, StudentMod.STUDENT_INFO_EMPTY);
         
-        allModBox.getChildren().addAll(classModBox, gradingScaleModBox, categoryWeightModBox, studentModBox, assignmentModBox);
+        if(userMode.get() == Settings.TEACHER)
+        {
+            allModBox.getChildren().addAll(classModBox, gradingScaleModBox, categoryWeightModBox, studentModBox, assignmentModBox);
+        }
+        else
+        {
+            allModBox.getChildren().addAll(classModBox, gradingScaleModBox, categoryWeightModBox, assignmentModBox);
+
+        }
         modPane.setContent(allModBox);
         if(userMode.get() == Settings.TEACHER)
         {
