@@ -71,6 +71,7 @@ public class GradeProgressTracker extends Application
         HBox searchPane = new HBox();
         HBox classAssignmentModificationsPane = new HBox();
         HBox settingsModTab = new HBox();
+        
         VBox searchGradeInfo = new VBox();
         VBox searchTable = new VBox();
         
@@ -80,34 +81,16 @@ public class GradeProgressTracker extends Application
         
         InitialStartup(primaryStage);
         
-        search = new Search();
-        
-        //Setup search tab
-        // Name(of class), semester(date), grade, GPA by semester, Professor, SchoolName
-        search.SetupSearchTable(conn, searchTable, searchGradeInfo);
-        search.SetupGradeInfo(conn, search, searchGradeInfo);
-        
-        classMod = new ClassMod();
-        assignmentMod = new AssignmentMod();
-        categoryWeightMod = new CategoryWeightMod();
-        //Setup class, assignment, category weight, grading scale modifications tab
-        // name(of class), semester, grade, professor, schoolName
-        SetupClassAssignmentModificationsPane(classAssignmentModificationsPane);
-        //end classInputPane setup
+        //setting up the change between modes
+        settings.getUserMode().addListener(e -> {
+            System.out.println("howintheworld");
+        });
         
         //Setup settings tab
         SettingsInfo.SetupSettingsMod(settingsModTab, settings, db, conn, filePathToSettingsInfo);
-        
-        classModificationsTab.setContent(classAssignmentModificationsPane);
-        searchTab.setContent(searchPane);
         settingsTab.setContent(settingsModTab);
-        searchPane.getChildren().addAll(searchTable, searchGradeInfo);
-        mainPane.getTabs().addAll(classModificationsTab, searchTab, settingsTab);
-        mainPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
-        mainPane.selectionModelProperty().getValue().selectedItemProperty().addListener(e -> {
-            search.SetupSearchTable(conn, searchTable, searchGradeInfo);
-        });
         
+        ContinuedStartup(mainPane, settingsTab, classModificationsTab, searchTab, searchPane, searchTable, searchGradeInfo, classAssignmentModificationsPane);
         Scene scene = new Scene(mainPane, 1250, 425);
         
         primaryStage.sizeToScene();
@@ -127,6 +110,34 @@ public class GradeProgressTracker extends Application
         launch(args);
     }
 
+    public void ContinuedStartup(TabPane mainPane, Tab settingsTab, Tab classModificationsTab, Tab searchTab, HBox searchPane, VBox searchTable, VBox searchGradeInfo, HBox classAssignmentModificationsPane)
+    {
+        search = new Search();
+        
+        //Setup search tab
+        // Name(of class), semester(date), grade, GPA by semester, Professor, SchoolName
+        search.SetupSearchTable(conn, searchTable, searchGradeInfo);
+        search.SetupGradeInfo(conn, search, searchGradeInfo);
+        
+        classMod = new ClassMod();
+        assignmentMod = new AssignmentMod();
+        categoryWeightMod = new CategoryWeightMod();
+        //Setup class, assignment, category weight, grading scale modifications tab
+        // name(of class), semester, grade, professor, schoolName
+        SetupClassAssignmentModificationsPane(classAssignmentModificationsPane);
+        //end classInputPane setup
+        
+        classModificationsTab.setContent(classAssignmentModificationsPane);
+        searchTab.setContent(searchPane);
+        
+        searchPane.getChildren().addAll(searchTable, searchGradeInfo);
+        mainPane.getTabs().addAll(classModificationsTab, searchTab, settingsTab);
+        mainPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
+        mainPane.selectionModelProperty().getValue().selectedItemProperty().addListener(e -> {
+            search.SetupSearchTable(conn, searchTable, searchGradeInfo);
+        });
+    }
+    
     //incomplete
     public void InitialStartup(Stage primaryStage)
     {
