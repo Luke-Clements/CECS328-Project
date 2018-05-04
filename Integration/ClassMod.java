@@ -5,6 +5,7 @@
  */
 package Integration;
 
+import BackCode.GradingScale;
 import BackCode.Settings;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,7 +34,7 @@ import javafx.scene.layout.VBox;
  */
 public class ClassMod 
 {
-    public static final String[] CLASS_GRADE_INFO_CATEGORIES = {"Class Name", "Semester", "Grade", "Professor", "School", "Time"};
+    public static final String[] CLASS_GRADE_INFO_CATEGORIES = {"Class Name", "Semester", "Grade", "Professor", "School", "Time", "Class ID"};
     private static final String[] CLASS_INFO_CATEGORIES = {"Class ID", "Class Name", "Semester", "Professor", "School", "Time"};
     public static final String[] CLASS_INFO_EMPTY = {"", "", "", "", "", ""}; //empty strings to replace anything in the textFields when a new class is selected
     private ObservableList<BackCode.Class> classItems;
@@ -82,7 +83,8 @@ public class ClassMod
                 String[] gsInfo = GradingScaleMod.getGradingScaleInfo(gsID, conn);
                 if(gsInfo == null)
                 {
-                    gsInfo = GradingScaleMod.GRADING_SCALE_INFO_EMPTY;
+                    GradingScale gs = new GradingScale();
+                    gsInfo = gs.getGradingScaleInfoArray();
                 }
                 GradingScaleMod.SetupGradingScaleMod(gradingScaleModBox, gsInfo);
                 cwm.SetupCategoryWeightTable(conn, this, categoryWeightModBox, c.getCID());
@@ -172,8 +174,7 @@ public class ClassMod
                 
                 ResultSet rs = pStmt.executeQuery();
                 
-                rs.next();
-                if(rs.getString("cName").equals(className) && rs.getString("semester").equals(classSemester) &&
+                if(rs.next() && rs.getString("cName").equals(className) && rs.getString("semester").equals(classSemester) &&
                         rs.getString("teacherName").equals(classTeacherName) && rs.getString("cTime").equals(classTime))
                 {
                     pStmt = conn.prepareStatement(updateStmt);
