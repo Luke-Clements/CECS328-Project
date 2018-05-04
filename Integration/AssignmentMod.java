@@ -261,8 +261,6 @@ public class AssignmentMod
                     a.setCategory(new SimpleStringProperty(rs.getString("aCategory")));
                     a.setScore(new SimpleFloatProperty(rs.getFloat("score")));
                     a.setMaxScore(new SimpleFloatProperty(rs.getFloat("maxScore")));
-                    System.out.println(a.getAssignmentCategory());
-                    System.out.println(a.getAssignmentName());
                     aa.add(a);
                 }while(rs.next());
             }
