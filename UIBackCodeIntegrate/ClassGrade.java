@@ -1,5 +1,6 @@
 package BackCode;
 
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -15,6 +16,7 @@ import javafx.beans.property.StringProperty;
  */
 public class ClassGrade 
 {
+    private IntegerProperty classID;
     private StringProperty className;
     private StringProperty professorName;
     private StringProperty grade;
@@ -23,6 +25,7 @@ public class ClassGrade
     
     public ClassGrade()
     {
+        classID = null;
         className = null;
         professorName = null;
         grade = null;
@@ -31,6 +34,10 @@ public class ClassGrade
    }
     
     //Setters
+    public void setClassID(IntegerProperty classId)
+    {
+        classID = classId;
+    }
     public void setName(StringProperty cName){
         className = cName;
     }
@@ -51,6 +58,10 @@ public class ClassGrade
         schoolName = cSchoolName;
     }
     
+    public int getClassID()
+    {
+        return classID.get();
+    }
     public String getSchoolName()
     {
         return schoolName.get();
