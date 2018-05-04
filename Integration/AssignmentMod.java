@@ -119,16 +119,23 @@ public class AssignmentMod
         }
         saveAssignment.setOnMouseClicked(e -> 
         {
-            Assignment a = new Assignment();
-            a.setName(new SimpleStringProperty(nameField.getText()));
-            a.setCategory(new SimpleStringProperty(categoryField.getText()));
-            a.setMaxScore(new SimpleFloatProperty(Float.parseFloat(maxScoreField.getText())));
-            a.setScore(new SimpleFloatProperty(Float.parseFloat(scoreField.getText())));
-
-            int classID = cm.getClassTable().getSelectionModel().getSelectedItem().getCID();
-            if(CategoryWeightMod.isValidCategory(a.getAssignmentCategory(), conn, classID))
+            try
             {
-                insertUpdateAssignment(settings, sm, classID, a, conn);
+                Assignment a = new Assignment();
+                a.setName(new SimpleStringProperty(nameField.getText()));
+                a.setCategory(new SimpleStringProperty(categoryField.getText()));
+                a.setMaxScore(new SimpleFloatProperty(Float.parseFloat(maxScoreField.getText())));
+                a.setScore(new SimpleFloatProperty(Float.parseFloat(scoreField.getText())));
+
+                int classID = cm.getClassTable().getSelectionModel().getSelectedItem().getCID();
+                if(CategoryWeightMod.isValidCategory(a.getAssignmentCategory(), conn, classID))
+                {
+                    insertUpdateAssignment(settings, sm, classID, a, conn);
+                }
+            }
+            catch(NumberFormatException nfe)
+            {
+                SettingsInfo.Notification("The score and max score fields must contain an integer.");
             }
         });
         
@@ -233,14 +240,9 @@ public class AssignmentMod
         }
         catch(SQLException se)
         {
-            se.printStackTrace();
+            SettingsInfo.Notification(se.getMessage());
         }
-        catch(NullPointerException npe)
-        {
-            System.out.println("null somewhere");
-            npe.printStackTrace();
-            //notification window
-        }
+
         assignmentItems = GetAssignmentTableValues(settings, sm, classID, conn);
         assignmentTable.setItems(assignmentItems);     
     }
@@ -284,7 +286,7 @@ public class AssignmentMod
         }
         catch(SQLException se)
         {
-            se.printStackTrace();
+            SettingsInfo.Notification(se.getMessage());
         }
     }
     //finished
@@ -349,7 +351,10 @@ public class AssignmentMod
         }
         catch(SQLException se)
         {
-            se.printStackTrace();
+            if(sID != -1)
+            {
+                SettingsInfo.Notification(se.getMessage());
+            }
         }
         return FXCollections.observableArrayList(aa);
     }
