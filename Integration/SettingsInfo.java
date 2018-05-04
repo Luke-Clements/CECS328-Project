@@ -15,6 +15,7 @@ import java.sql.Connection;
 import javafx.beans.property.LongProperty;
 import javafx.collections.FXCollections;
 import javafx.event.Event;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -37,6 +38,25 @@ public final class SettingsInfo
 {
     private static final String[] MODE_SETTINGS = {"Teacher", "Student"};
     
+    public static void Notification(String message)
+    {
+        Stage secondaryStage = new Stage();
+        VBox content = new VBox();
+        Label messageLabel = new Label(message);
+        Button acknowledgeButton = new Button("OK");
+        acknowledgeButton.setAlignment(Pos.CENTER);
+        messageLabel.setAlignment(Pos.CENTER);
+        
+        acknowledgeButton.setOnMouseClicked(e -> {
+            secondaryStage.close();
+        });
+        
+        content.setAlignment(Pos.CENTER);
+        content.getChildren().addAll(messageLabel, acknowledgeButton);
+        Scene scene = new Scene(content, 400, 50);
+        secondaryStage.setScene(scene);
+        secondaryStage.showAndWait();
+    }
    //finished
     public static Connection SetSelectedDatabaseAndGetConnection(Settings settings, Database db)
     {
@@ -76,6 +96,7 @@ public final class SettingsInfo
         
         ComboBox modeBox = new ComboBox();
         modeBox.setItems(FXCollections.observableArrayList(MODE_SETTINGS));
+        //will never have a parse error here because it is accessing an long value that is either a 1 or a 0
         modeBox.setValue(MODE_SETTINGS[Integer.parseInt(Long.toString(settings.getUserMode().get()))]);
         modeBox.getSelectionModel().selectedItemProperty().addListener(e -> {
             if(modeBox.getSelectionModel().selectedIndexProperty().intValue() != settings.getUserMode().get())
@@ -85,7 +106,7 @@ public final class SettingsInfo
                 mode.setValue(settings.getUserMode().get());
                 if(mode.get() != settings.getUserMode().get())
                 {
-                    System.out.println("Mode switch failed");
+                    SettingsInfo.Notification("Mode switch failed.");
                 }
             }
         });
@@ -194,12 +215,11 @@ public final class SettingsInfo
             settings.setGradingScaleCounter(Math.toIntExact((long)jsonObj.get("studentGradingScaleCounter")), Math.toIntExact(Settings.STUDENT));
             settings.setGradingScaleCounter(Math.toIntExact((long)jsonObj.get("teacherGradingScaleCounter")), Math.toIntExact(Settings.TEACHER));
         } catch (FileNotFoundException e) {
-            System.out.println("The selected file at " + filePathToSettingsInfo + " does not exist.");
+            SettingsInfo.Notification("The selected file at " + filePathToSettingsInfo + " does not exist.");
         } catch (IOException ex) {
-            System.out.println("There was an error reading the file.");
+            SettingsInfo.Notification("There was an error reading the file.");
         } catch (ParseException ex) {
-            System.out.println("The file data has been corrupted.");
-            ex.printStackTrace();
+            SettingsInfo.Notification("The file data has been corrupted.");
         }
     }
     
@@ -224,7 +244,7 @@ public final class SettingsInfo
             fw.close();
         } catch (Exception ex) 
         {
-
+            SettingsInfo.Notification("The settings file was not saved.");
         }
     }
 }
