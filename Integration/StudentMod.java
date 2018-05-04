@@ -5,16 +5,13 @@
  */
 package Integration;
 
-import BackCode.Assignment;
+import BackCode.Settings;
 import BackCode.Student;
-import static Integration.AssignmentMod.GetAssignmentTableValues;
-import static Integration.AssignmentMod.deleteAssignment;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -39,8 +36,13 @@ public class StudentMod
     private ObservableList<Student> studentItems;
     private TableView<Student> studentTable = new TableView();
     
+    public TableView<Student> getTable()
+    {
+        return studentTable;
+    }
+    
     //sets up Assignment table
-    public TableView<Student> SetupStudentTable(Connection conn, VBox studentModBox, ClassMod cm)
+    public TableView<Student> SetupStudentTable(Settings settings, Connection conn, VBox studentModBox, VBox assignmentModBox, ClassMod cm, AssignmentMod am)
     {
         int classID;
         if(!(cm.getClassTable() == null) && !(cm.getClassTable().getSelectionModel().getSelectedItem() == null))
@@ -70,8 +72,9 @@ public class StudentMod
             }
             else
             {
-                studentInfo = AssignmentMod.ASSIGNMENT_INFO_EMPTY;
+                studentInfo = StudentMod.STUDENT_INFO_EMPTY;
             }
+            am.SetupAssignmentTable(this, settings, conn, assignmentModBox, cm);
             SetupStudentMod(cm, conn, studentModBox, studentInfo);
         });
 
@@ -94,12 +97,19 @@ public class StudentMod
         emailField.setText(studentInfo[1]);
         getEmail.getChildren().addAll(promptEmail, emailField);
         
+        HBox getStudentID = new HBox();
+        TextField idField = new TextField();
+        Label promptId = new Label(STUDENT_INFO_CATEGORIES[1] + ":");
+        idField.setText(studentInfo[2]);
+        getStudentID.getChildren().addAll(promptId, idField);
+        
         Button saveStudent = new Button("Save Student Changes");
         saveStudent.setOnMouseClicked(e -> 
         {
             Student s = new Student();
             s.setSName(new SimpleStringProperty(nameField.getText()));
             s.setSEmail(new SimpleStringProperty(emailField.getText()));
+            s.setSID(new SimpleIntegerProperty(Integer.parseInt(idField.getText())));
             int classID = cm.getClassTable().getSelectionModel().getSelectedItem().getCID();
             this.insertUpdateStudent(classID, s, conn);
         });
@@ -120,22 +130,24 @@ public class StudentMod
             studentTable.setItems(studentItems);
         });
         
-        studentMod.getChildren().addAll(getStudentName, getEmail, saveStudent, removeStudentFromClass, removeStudent);
+        studentMod.getChildren().addAll(getStudentName, getEmail, getStudentID, saveStudent, removeStudentFromClass, removeStudent);
     }
     
     public void insertUpdateStudent(int classID, Student s, Connection conn)
     {
-        String sName = s.getSName().get();
-        String sEmail = s.getSEmail().get();
-        int sID = s.getSID().get();
+        String sName = s.getSName();
+        String sEmail = s.getSEmail();
+        int sID = s.getSID();
+        boolean studentExists = false;
         
         String studentStmt = "INSERT INTO Student(sID, sName, sEmail) "+
                 "VALUES(?, ?, ?)";
         String studentClassStmt = "INSERT INTO StudentClass(sID, cID) "+
                 "VALUES(?, ?)";
-        String updateStmt = "UPDATE Student SET sName=" + sName +
-                        " WHERE sID=" + sID;
-        String testStmt = "SELECT sEmail FROM Student WHERE sID=" + sID;
+        String updateStmt = "UPDATE Student SET sName='" + sName +
+                        "' WHERE sID=" + sID;
+        String testStmt = "SELECT * FROM Student WHERE sID=" + sID;
+        String testStmt2 = "SELECT * FROM StudentClass WHERE sID=" + sID + " and cID=" + classID;
 
         try
         {
@@ -148,17 +160,27 @@ public class StudentMod
             
             if(rs.next() && rs.getString("sName").equals(sName) && rs.getString("sEmail").equals(sEmail) && rs.getInt("sID") == sID)
             {
+                studentExists = true;
+            }
+            pStmt = conn.prepareStatement(testStmt2);
+            rs = pStmt.executeQuery();
+            
+            if(studentExists && rs.next() && rs.getInt("sID") == sID && rs.getInt("cID") == classID)
+            {
                 pStmt = conn.prepareStatement(updateStmt);
                     
                 pStmt.executeUpdate();
             }
             else
             {
-                pStmt = conn.prepareStatement(studentStmt);
-                pStmt.setInt(1, sID);
-                pStmt.setString(2, sName);
-                pStmt.setString(3, sEmail);
-                pStmt.executeUpdate();
+                if(!studentExists)
+                {
+                    pStmt = conn.prepareStatement(studentStmt);
+                    pStmt.setInt(1, sID);
+                    pStmt.setString(2, sName);
+                    pStmt.setString(3, sEmail);
+                    pStmt.executeUpdate();
+                }
                 
                 pStmt = conn.prepareStatement(studentClassStmt);
                 pStmt.setInt(1, sID);
@@ -183,7 +205,7 @@ public class StudentMod
     //finished
     public static void removeStudentFromClass(int classID, Student s, Connection conn)
     {
-        int sID = s.getSID().get();
+        int sID = s.getSID();
         String assignmentStmt = "DELETE FROM Assignment WHERE cID=" + classID + 
                                             " and sID=" + sID;
         String studentClassStmt = "DELETE FROM StudentClass WHERE cID=" + classID + 
@@ -204,7 +226,7 @@ public class StudentMod
     
     public static void removeStudent(int classID, Student s, Connection conn)
     {
-        int sID = s.getSID().get();
+        int sID = s.getSID();
         String assignmentStmt = "DELETE FROM Assignment WHERE sID=" + sID;
         String studentClassStmt = "DELETE FROM StudentClass WHERE sID=" + sID;
         String studentStmt = "DELETE FROM Student WHERE sID=" + sID;
