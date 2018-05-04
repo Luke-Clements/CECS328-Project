@@ -5,6 +5,7 @@
  */
 package BackCode;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 import javafx.collections.ObservableList;
@@ -16,18 +17,18 @@ import javafx.collections.ObservableList;
 public class Calculations 
 {
     //calculate GPA
-    public static float calculateGPA(String[] grades)
+    public static float calculateGPA(ObservableList<ClassGrade> grades)
     {
         int classesNotConsideredForGPA = 0;
         int sumOfFinalGrades = 0;
-        for (String grade : grades) {
-            if (grade.equals("P") || grade.equals("NP")) {
+        for (ClassGrade cGrade : grades) {
+            if (cGrade.getGrade().equals("P") || cGrade.getGrade().equals("NP")) {
                 classesNotConsideredForGPA++;
             } else {
-                sumOfFinalGrades += getFinalGrade(grade);
+                sumOfFinalGrades += getFinalGrade(cGrade.getGrade());
             }
         }
-        return sumOfFinalGrades/(float)(grades.length-classesNotConsideredForGPA);
+        return sumOfFinalGrades/(float)(grades.size()-classesNotConsideredForGPA);
     }
     
     public static String getFinalLetterGrade(float grade, GradingScale gs)
@@ -93,35 +94,45 @@ public class Calculations
     }
     
     //calculate max score for class
-    public static float calculateMaxClassScore(HashMap<String, Integer> cw, Assignment[] assignments)
+    public static float calculateMaxClassScore(HashMap<String, Integer> cw, ObservableList<Assignment> assignments)
     {
-        int numberOfGradingCategories = cw.size();
         HashMap<String, Float> categoryScore = new HashMap<>(); // stores the possible best score by the user
         HashMap<String, Float> categoryMaxScore = new HashMap<>(); // 100% on everything in all categories
         float finalScore = 0;
         
         for (Assignment assignment : assignments) 
         {
-            if (assignment.getAssignmentScore(true) == null) 
+            if(categoryScore.get(assignment.getAssignmentCategory()) != null)
             {
-                categoryScore.put(assignment.getAssignmentCategory(), 
-                                  categoryScore.get(assignment.getAssignmentCategory()) + assignment.getAssignmentMaxScore());
+                categoryScore.put(assignment.getAssignmentCategory(),
+                                  categoryScore.get(
+                                          assignment.getAssignmentCategory()) + 
+                                            assignment.getAssignmentMaxScore());
+                categoryMaxScore.put(assignment.getAssignmentCategory(), 
+                                  categoryMaxScore.get(assignment.getAssignmentCategory()) + 
+                                          assignment.getAssignmentMaxScore());
             }
             else
             {
                 categoryScore.put(assignment.getAssignmentCategory(),
-                                  categoryScore.get(assignment.getAssignmentCategory()) + assignment.getAssignmentScore());
+                                            assignment.getAssignmentScore());
+                categoryMaxScore.put(assignment.getAssignmentCategory(), 
+                                          assignment.getAssignmentMaxScore());
             }
-            categoryMaxScore.put(assignment.getAssignmentCategory(),
-                                 categoryScore.get(assignment.getAssignmentCategory()) + assignment.getAssignmentMaxScore());
         }
         
-        Set<String> keys = categoryScore.keySet();
-        
+        Set<String> keys = cw.keySet();
+        //adjust for categories that have no values in them
         for(String key: keys)
         {
-            finalScore += 
-                    (categoryScore.get(key)/categoryMaxScore.get(key))*cw.get(key);
+            if(categoryScore.containsKey(key))
+            {
+                finalScore += (categoryScore.get(key)/categoryMaxScore.get(key))*cw.get(key);
+            }
+            else
+            {
+                finalScore += cw.get(key);
+            }
         }
         return finalScore;
     }
