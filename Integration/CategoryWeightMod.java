@@ -52,27 +52,16 @@ public class CategoryWeightMod
     //sets up Assignment table
     public TableView<Map.Entry<String, Integer>> SetupCategoryWeightTable(Connection conn, ClassMod cm, VBox categoryWeightModBox, int classID)
     {
-        int gsID;
         if(!(cm.getClassTable() == null))
         {
             classID = cm.getClassTable().getSelectionModel().getSelectedItem().getCID();
-            if(classID != -1)
-            {
-                gsID = getGradingScaleID(conn, classID);
-            }
-            else
-            {
-                gsID = -1;
-            }
         }
         else
         {
             classID = -1;
-            gsID = -1;
         }
-        System.out.println();
         
-        categoryWeightItems = GetCategoryWeightTableValues(gsID, conn);
+        categoryWeightItems = GetCategoryWeightTableValues(classID, conn);
         
         categoryWeightTable.setItems(categoryWeightItems);
         
@@ -141,8 +130,8 @@ public class CategoryWeightMod
         {
             if(weightSumValid())
             {
-                int gsID = getGradingScaleID(conn, cm.getClassTable().getSelectionModel().getSelectedItem().getCID());
-                updateCategoryWeight(gsID, conn);
+                int classID = cm.getClassTable().getSelectionModel().getSelectedItem().getCID();
+                updateCategoryWeight(conn, classID);
             }
             else
             {
@@ -153,10 +142,10 @@ public class CategoryWeightMod
         categoryWeightMod.getChildren().addAll(categoryWeightTable, getCategory, getWeight, addCategoryWeight, removeCategoryWeight, saveCategoryWeight);
     }
     
-    private void updateCategoryWeight(int gsID, Connection conn)
+    private void updateCategoryWeight(Connection conn, int classID)
     {
-        String delStmt = "DELETE FROM CategoryWeight WHERE gsID=" + gsID;
-        String insStmt = "INSERT INTO CategoryWeight(cwCategory, weight, gsID) "+
+        String delStmt = "DELETE FROM CategoryWeight WHERE classID=" + classID;
+        String insStmt = "INSERT INTO CategoryWeight(cwCategory, weight, classID) "+
                 "VALUES(?, ?, ?)";
         
         try
@@ -171,7 +160,7 @@ public class CategoryWeightMod
                 ps = conn.prepareStatement(insStmt);
                 ps.setString(1, entry.getKey());
                 ps.setInt(2, entry.getValue());
-                ps.setInt(3, gsID);
+                ps.setInt(3, classID);
                 ps.executeUpdate();
             }
         }
@@ -207,7 +196,7 @@ public class CategoryWeightMod
             PreparedStatement ps = conn.prepareStatement(stmt);
             ResultSet rs = ps.executeQuery();
             
-            if(rs.next()) return rs.getInt("gsID");
+            if(rs.next()) System.out.println(rs.getInt("gsID")); return rs.getInt("gsID");
         }
         catch(SQLException se)
         {
@@ -217,9 +206,9 @@ public class CategoryWeightMod
     }
     
     //finished
-    public ObservableList<Map.Entry<String, Integer>> GetCategoryWeightTableValues(int gsID, Connection conn)
+    public ObservableList<Map.Entry<String, Integer>> GetCategoryWeightTableValues(int classID, Connection conn)
     {
-        String stmt = "SELECT * FROM CategoryWeight WHERE gsID=" + gsID;
+        String stmt = "SELECT * FROM CategoryWeight WHERE classID=" + classID;
         HashMap<String, Integer> cw = new HashMap();
         
         try
