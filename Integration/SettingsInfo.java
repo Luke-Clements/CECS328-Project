@@ -7,10 +7,16 @@ package Integration;
 
 import BackCode.Settings;
 import Database.Database;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import javafx.beans.property.LongProperty;
 import javafx.collections.FXCollections;
@@ -38,6 +44,43 @@ public final class SettingsInfo
 {
     private static final String[] MODE_SETTINGS = {"Teacher", "Student"};
     
+    //requires absolute pathing
+    public static boolean moveFiles(String source, String destination)
+    {
+        File folder = new File(source);
+        File[] listOfFiles = folder.listFiles();
+
+        for (int i = 0; i < listOfFiles.length; i++) 
+        {
+            
+            try
+            {
+                if (listOfFiles[i].isFile()) 
+                {
+                    Files.move(Paths.get(listOfFiles[i].getAbsolutePath()), Paths.get(destination + "/" + listOfFiles[i].getName()), StandardCopyOption.REPLACE_EXISTING);
+                } 
+                else if (listOfFiles[i].isDirectory()) 
+                {
+                    Path path = Paths.get(destination + "/" + listOfFiles[i].getName());
+                    if(!path.toFile().exists() || !path.toFile().isDirectory())
+                    {
+                        Files.createDirectory(path);
+                    }
+                    moveFiles(source + "/" + listOfFiles[i].getName(), destination + "/" + listOfFiles[i].getName());
+                }
+            }
+            catch(FileAlreadyExistsException faee)
+            {
+                //don't care, skips the selected file from copying process automatically
+            }
+            catch(IOException ioe)
+            {
+                ioe.printStackTrace();
+                return false;
+            }
+        }
+        return true;
+    }
     public static void Notification(String message)
     {
         Stage secondaryStage = new Stage();
@@ -58,9 +101,8 @@ public final class SettingsInfo
         secondaryStage.showAndWait();
     }
    //finished
-    public static Connection SetSelectedDatabaseAndGetConnection(Settings settings, Database db)
+    public static Connection SetSelectedDatabaseAndGetConnection(Connection connect, Settings settings, Database db)
     {
-        Connection connect;
         if(settings.getUserMode().get() == settings.STUDENT)
         {
             db = new Database("jdbc:derby:GPTStudentTest;create=true", settings.getFilePathToDataBaseFiles().get());
@@ -69,7 +111,7 @@ public final class SettingsInfo
 
             if(db.IsEmpty(connect))
             {
-                db.initializeDatabase(connect, settings.getFilePathToDataBaseFiles().get() + "/StudentDatabaseDDL.json");
+                db.initializeDatabase(connect, System.getProperty("user.dir") + "/databaseDDL/StudentDatabaseDDL.json");
             }
         }
         else
@@ -79,7 +121,7 @@ public final class SettingsInfo
             
             if(db.IsEmpty(connect))
             {
-                db.initializeDatabase(connect, settings.getFilePathToDataBaseFiles().get() + "/TeacherDatabaseDDL.json");
+                db.initializeDatabase(connect, System.getProperty("user.dir") + "/databaseDDL/TeacherDatabaseDDL.json");
             }
         }
         return connect;
@@ -114,10 +156,14 @@ public final class SettingsInfo
         Label dbFilepath = new Label(settings.getFilePathToDataBaseFiles().get());
         Button setDbFilepath = new Button("Change Database Location");
         setDbFilepath.setOnMouseClicked(e -> {
+            String source = settings.getFilePathToDataBaseFiles().get();
             GetNewDatabaseFilepath(settings);
+            moveFiles(source, settings.getFilePathToDataBaseFiles().get());
+
             /****WARNING: Does not account for moving database files to the new location. ALL DATA WILL BE LOST!!!******/
             SaveSettingsFile(settings, filepathToSettingsFile);
             dbFilepath.setText(settings.getFilePathToDataBaseFiles().get());
+            SetSelectedDatabaseAndGetConnection(conn, settings, db);
         });
         
         settingsMod.getChildren().addAll(setUsernameID, modeBox, dbFilepath, setDbFilepath);
