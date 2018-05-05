@@ -119,7 +119,7 @@ public class GradeProgressTracker extends Application
         classAssignmentModificationsPane.getChildren().clear();
         
         //resets the connection so it is to the correct database
-        conn = SettingsInfo.SetSelectedDatabaseAndGetConnection(settings, db);
+        conn = SettingsInfo.SetSelectedDatabaseAndGetConnection(conn, settings, db);
         
         search = new Search();
         classMod = new ClassMod();
